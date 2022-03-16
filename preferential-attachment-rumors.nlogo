@@ -2,6 +2,7 @@ turtles-own
 [
   infected?
   resistant?
+  wiser?
   rumor-check-timer
 ]
 
@@ -22,20 +23,14 @@ to go
 end
 
 to setup_rumors
-  ask turtles [
-  set infected? false
-  set resistant? false
-  ]
+
   ask n-of initial-outbreak-size turtles
     [ become-infected ]
   reset-ticks
 end
 
 to setup_wisers
-  ask turtles [
-  set infected? false
-  set resistant? true
-  ]
+
   ask n-of initial-wiser-size turtles
     [ become-wiser ]
   reset-ticks
@@ -54,24 +49,109 @@ to remove-infected
 end
 
 to spread-rumors
+  ask links [ set color gray ]
+  make-node find-partner
   if all? turtles [not infected?]
     [ stop ]
   ask turtles
   [
      set rumor-check-timer rumor-check-timer + 1
-     if rumor-check-timer >= rumor-check-frequency
+     if rumor-check-timer >= check-frequency
        [ set rumor-check-timer 0 ]
   ]
   spread-rumor
-  do-rumor-checks
-
+  do-checks
   tick
+  if layout? [ layout ]
 end
+
+to spread-rumor
+  ask turtles with [infected?]
+    [ ask link-neighbors with [not resistant? and not wiser?]
+        [ if random-float 100 < rumor-spread-chance
+            [ become-infected ] ] ]
+end
+
+to spread-wisers
+  ask links [ set color gray ]
+  make-node find-partner
+  if all? turtles [not resistant?]
+    [ stop ]
+  ask turtles
+  [
+     set rumor-check-timer rumor-check-timer + 1
+     if rumor-check-timer >= check-frequency
+       [ set rumor-check-timer 0 ]
+  ]
+  spread-wiser
+  do-checks
+  tick
+  if layout? [ layout ]
+end
+
+to spread-wiser
+  ask turtles with [wiser?]
+    [ ask link-neighbors with [not resistant?]
+        [ if random-float 100 < wiser-spread-chance
+            [ become-resistant ] ] ]
+end
+
+to spread-super-wiser
+  ask turtles with [wiser?]
+    [ ask link-neighbors with [not wiser?]
+        [ if random-float 100 < super-wiser-spread-chance
+            [ become-wiser ] ] ]
+end
+
+to spread-r-w-together
+  ask links [ set color gray ]
+  make-node find-partner
+  if all? turtles [not resistant?]
+    [ stop ]
+  if all? turtles [not infected?]
+    [ stop ]
+  ask turtles
+  [
+     set rumor-check-timer rumor-check-timer + 1
+     if rumor-check-timer >= check-frequency
+       [ set rumor-check-timer 0 ]
+  ]
+  spread-rumor
+  spread-wiser
+  do-checks
+  tick
+  if layout? [ layout ]
+end
+
+to spread-r-sw-together
+  ask links [ set color gray ]
+  make-node find-partner
+  if all? turtles [not resistant?]
+    [ stop ]
+  if all? turtles [not infected?]
+    [ stop ]
+  ask turtles
+  [
+     set rumor-check-timer rumor-check-timer + 1
+     if rumor-check-timer >= check-frequency
+       [ set rumor-check-timer 0 ]
+  ]
+  spread-rumor
+  spread-super-wiser
+  spread-wiser
+  do-checks
+  tick
+  if layout? [ layout ]
+end
+
 
 to make-node [old-node]
   create-turtles 1
   [
     set color blue
+    set infected? false
+    set resistant? false
+    set wiser? false
     set size 2
     if old-node != nobody
       [ create-link-with old-node [ set color green ]
@@ -128,52 +208,49 @@ end
 to become-infected
   set infected? true
   set resistant? false
+  set wiser? false
   set color red
 end
 
 to become-wiser
   set infected? false
   set resistant? true
+  set wiser? true
   set color yellow
 end
 
 to become-susceptible
   set infected? false
   set resistant? false
+  set wiser? true
   set color blue
 end
 
 to become-resistant
   set infected? false
   set resistant? true
+  set wiser? false
   set color gray
   ask my-links [ set color gray - 2 ]
 end
 
-to spread-rumor
-  ask turtles with [infected?]
-    [ ask link-neighbors with [not resistant?]
-        [ if random-float 100 < rumor-spread-chance
-            [ become-infected ] ] ]
-end
 
-to do-rumor-checks
-  ask turtles with [not infected? and rumor-check-timer = 0]
+to do-checks
+  ask turtles with [not infected? and not resistant? and rumor-check-timer = 0]
   [
-     ifelse random 100 < gain-resistance-chance
+     if random 100 < gain-resistance-chance
       [ become-resistant ]
-      [ become-susceptible ]
   ]
 end
 @#$#@#$#@
 GRAPHICS-WINDOW
-319
-23
-870
-575
+599
+21
+1211
+634
 -1
 -1
-5.38
+5.9802
 1
 10
 1
@@ -194,10 +271,10 @@ ticks
 30.0
 
 BUTTON
-37
-42
-103
-75
+11
+26
+77
+59
 setup
 setup\n
 NIL
@@ -211,10 +288,10 @@ NIL
 1
 
 BUTTON
-252
-40
-315
-73
+166
+27
+229
+60
 go
 go\n
 T
@@ -228,10 +305,10 @@ NIL
 0
 
 BUTTON
-137
-41
-217
-74
+82
+27
+162
+60
 go-once
 go
 NIL
@@ -245,10 +322,10 @@ NIL
 0
 
 BUTTON
-47
-103
-155
-136
+13
+553
+121
+586
 redo layout
 layout
 T
@@ -262,10 +339,10 @@ NIL
 0
 
 BUTTON
-196
-103
-310
-136
+140
+553
+254
+586
 resize nodes
 resize-nodes
 NIL
@@ -279,10 +356,10 @@ NIL
 0
 
 SWITCH
-52
-160
-155
-193
+1220
+25
+1323
+58
 plot?
 plot?
 0
@@ -290,10 +367,10 @@ plot?
 -1000
 
 SWITCH
-203
-159
-309
-192
+271
+553
+377
+586
 layout?
 layout?
 0
@@ -301,10 +378,10 @@ layout?
 -1000
 
 BUTTON
-65
-206
-179
-239
+11
+114
+125
+147
 setup-rumors
 setup_rumors\n
 NIL
@@ -318,10 +395,10 @@ NIL
 1
 
 BUTTON
-178
-206
-299
-239
+286
+114
+407
+147
 spread-rumors
 spread-rumors
 T
@@ -332,13 +409,13 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
-871
-35
-1066
-68
+8
+158
+203
+191
 initial-outbreak-size
 initial-outbreak-size
 0
@@ -350,12 +427,12 @@ NIL
 HORIZONTAL
 
 SLIDER
-873
-142
-1068
-175
-rumor-check-frequency
-rumor-check-frequency
+426
+128
+598
+161
+check-frequency
+check-frequency
 0
 14
 7.0
@@ -365,40 +442,40 @@ NIL
 HORIZONTAL
 
 SLIDER
-874
-199
-1069
-232
+214
+159
+409
+192
 rumor-spread-chance
 rumor-spread-chance
 0
 100
-55.0
+72.0
 1
 1
 %
 HORIZONTAL
 
 SLIDER
-872
-250
-1088
-283
+425
+180
+598
+213
 gain-resistance-chance
 gain-resistance-chance
 0
 100
-51.0
+6.0
 1
 1
 %
 HORIZONTAL
 
 BUTTON
-87
-293
-250
-326
+158
+594
+321
+627
 set-all-susceptible
 set-all-susceptible
 NIL
@@ -412,10 +489,10 @@ NIL
 1
 
 BUTTON
-74
-362
-209
-395
+13
+593
+148
+626
 remove-infected
 remove-infected
 NIL
@@ -429,10 +506,10 @@ NIL
 1
 
 SLIDER
-874
-92
-1048
-125
+10
+282
+184
+315
 initial-wiser-size
 initial-wiser-size
 0
@@ -444,10 +521,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-65
-250
-179
-283
+9
+235
+123
+268
 setup-wisers
 setup_wisers
 NIL
@@ -461,12 +538,12 @@ NIL
 1
 
 BUTTON
-180
-249
-297
-283
-spread-wiser
-spread-wiser
+284
+234
+405
+268
+spread-wisers
+spread-wisers
 T
 1
 T
@@ -478,10 +555,10 @@ NIL
 1
 
 MONITOR
-944
-362
-1068
-407
+432
+269
+556
+314
 Number of people
 count turtles
 17
@@ -489,21 +566,21 @@ count turtles
 11
 
 MONITOR
-945
-434
-1131
-479
+433
+341
+561
+386
 Number of wiser
-count turtles with\n[color = white]
+count turtles with\n[color = yellow]
 17
 1
 11
 
 MONITOR
-946
-506
-1084
-551
+434
+413
+572
+458
 Number of infected
 count turtles with [color = red]
 17
@@ -511,10 +588,10 @@ count turtles with [color = red]
 11
 
 PLOT
-71
-412
-271
-562
+1220
+64
+1501
+249
 Degree Distribution
 degree
 # of nodes
@@ -529,10 +606,10 @@ PENS
 "default" 1.0 1 -16777216 true "" "if not plot? [ stop ]\nlet max-degree max [count link-neighbors] of turtles\nplot-pen-reset  ;; erase what we plotted before\nset-plot-x-range 1 (max-degree + 1)  ;; + 1 to make room for the width of the last bar\nhistogram [count link-neighbors] of turtles"
 
 PLOT
-287
-621
-487
-771
+1220
+459
+1515
+635
 Degree Distribution (log-log)
 log(degree)
 log(# of nodes)
@@ -545,6 +622,250 @@ false
 "" ""
 PENS
 "default" 1.0 2 -16777216 true "" "if not plot? [ stop ]\nlet max-degree max [count link-neighbors] of turtles\n;; for this plot, the axes are logarithmic, so we can't\n;; use \"histogram-from\"; we have to plot the points\n;; ourselves one at a time\nplot-pen-reset  ;; erase what we plotted before\n;; the way we create the network there is never a zero degree node,\n;; so start plotting at degree one\nlet degree 1\nwhile [degree <= max-degree] [\n  let matches turtles with [count link-neighbors = degree]\n  if any? matches\n    [ plotxy log degree 10\n             log (count matches) 10 ]\n  set degree degree + 1\n]"
+
+BUTTON
+127
+114
+283
+147
+spread-rumors-once
+spread-rumors
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
+
+BUTTON
+126
+235
+282
+268
+spread-wisers-once
+spread-wisers
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
+
+MONITOR
+433
+479
+573
+524
+Number of resistant
+count turtles with [color = gray]
+17
+1
+11
+
+BUTTON
+10
+352
+207
+385
+spread-r-w-together-once
+spread-r-w-together
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
+
+BUTTON
+216
+352
+379
+385
+spread-r-w-together
+spread-r-w-together
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
+
+SLIDER
+202
+282
+397
+315
+wiser-spread-chance
+wiser-spread-chance
+0
+100
+37.0
+1
+1
+%
+HORIZONTAL
+
+BUTTON
+12
+431
+230
+464
+spread-r-sw-w-together-once
+spread-r-sw-together
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
+
+BUTTON
+235
+432
+419
+465
+spread-r-sw-w-together
+spread-r-sw-together
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
+
+PLOT
+1220
+258
+1503
+447
+Network Status
+time
+% of nodes
+0.0
+100.0
+0.0
+100.0
+true
+true
+"" ""
+PENS
+"Susceptible" 1.0 0 -13345367 true "" "if not plot? [ stop ]\nplot (count turtles with [not infected? and not resistant? and not wiser?]) / (count turtles) * 100"
+"Infected" 1.0 0 -2674135 true "" "if not plot? [ stop ]\nplot (count turtles with [infected?]) / (count turtles) * 100"
+"Wiser" 1.0 0 -1184463 true "" "if not plot? [ stop ]\nplot (count turtles with [wiser?]) / (count turtles) * 100"
+"Resistant" 1.0 0 -7500403 true "" "if not plot? [ stop ]\nplot (count turtles with [resistant? and not wiser?]) / (count turtles) * 100"
+
+SLIDER
+10
+474
+246
+507
+super-wiser-spread-chance
+super-wiser-spread-chance
+0
+100
+3.0
+1
+1
+%
+HORIZONTAL
+
+TEXTBOX
+20
+85
+170
+103
+Add rumors
+12
+0.0
+1
+
+TEXTBOX
+22
+211
+172
+229
+Add wisers
+12
+0.0
+1
+
+TEXTBOX
+21
+330
+289
+356
+Spread rumors and common wisers together
+12
+0.0
+1
+
+TEXTBOX
+244
+23
+394
+88
+After reaching a certain size, we will not need use to use \"go\". The functions of go are merged in the spread.
+12
+15.0
+1
+
+TEXTBOX
+20
+401
+355
+427
+Spread rumors, wisers, super wisers together
+12
+0.0
+1
+
+TEXTBOX
+432
+21
+582
+99
+This is the slider of how often to determine if some of the susceptible people have the knowledge to immunity rumours
+12
+105.0
+1
+
+TEXTBOX
+24
+522
+174
+540
+Some functions
+12
+0.0
+1
+
+TEXTBOX
+436
+238
+586
+256
+Monitors
+12
+105.0
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
