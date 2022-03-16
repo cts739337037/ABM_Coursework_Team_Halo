@@ -1,4 +1,3 @@
-
 turtles-own
 [
   infected?
@@ -335,7 +334,7 @@ initial-outbreak-size
 initial-outbreak-size
 0
 50
-43.0
+42.0
 1
 1
 NIL
@@ -343,14 +342,14 @@ HORIZONTAL
 
 SLIDER
 873
-94
+142
 1068
-127
+175
 rumor-check-frequency
 rumor-check-frequency
 0
 14
-0.0
+2.0
 1
 1
 NIL
@@ -358,29 +357,29 @@ HORIZONTAL
 
 SLIDER
 874
-151
+199
 1069
-184
+232
 rumor-spread-chance
 rumor-spread-chance
 0
 100
-100.0
+55.0
 1
 1
 %
 HORIZONTAL
 
 SLIDER
-879
-210
-1051
-243
+876
+258
+1048
+291
 recovery-chance
 recovery-chance
 0
 100
-100.0
+59.0
 1
 1
 %
@@ -388,9 +387,9 @@ HORIZONTAL
 
 SLIDER
 875
-268
+316
 1091
-301
+349
 gain-resistance-chance
 gain-resistance-chance
 0
@@ -436,10 +435,10 @@ NIL
 1
 
 SLIDER
-1143
-41
-1317
-74
+874
+92
+1048
+125
 initial-wiser-size
 initial-wiser-size
 0
@@ -516,6 +515,42 @@ count turtles with [color = red]
 17
 1
 11
+
+PLOT
+71
+412
+271
+562
+Degree Distribution
+degree
+# of nodes
+1.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 1 -16777216 true "" "if not plot? [ stop ]\nlet max-degree max [count link-neighbors] of turtles\nplot-pen-reset  ;; erase what we plotted before\nset-plot-x-range 1 (max-degree + 1)  ;; + 1 to make room for the width of the last bar\nhistogram [count link-neighbors] of turtles"
+
+PLOT
+68
+581
+268
+731
+Degree Distribution (log-log)
+log(degree)
+log(# of nodes)
+0.0
+0.3
+0.0
+0.3
+true
+false
+"" ""
+PENS
+"default" 1.0 2 -16777216 true "" "if not plot? [ stop ]\nlet max-degree max [count link-neighbors] of turtles\n;; for this plot, the axes are logarithmic, so we can't\n;; use \"histogram-from\"; we have to plot the points\n;; ourselves one at a time\nplot-pen-reset  ;; erase what we plotted before\n;; the way we create the network there is never a zero degree node,\n;; so start plotting at degree one\nlet degree 1\nwhile [degree <= max-degree] [\n  let matches turtles with [count link-neighbors = degree]\n  if any? matches\n    [ plotxy log degree 10\n             log (count matches) 10 ]\n  set degree degree + 1\n]"
 
 @#$#@#$#@
 ## WHAT IS IT?
