@@ -151,7 +151,7 @@ to become-resistant
 end
 
 to spread-rumor
-  ask turtles with [infected?]
+  ask turtles with [infected? ]
     [ ask link-neighbors with [not resistant?]
         [ if random-float 100 < rumor-spread-chance
             [ become-infected ] ] ]
@@ -358,7 +358,7 @@ rumor-check-frequency
 rumor-check-frequency
 0
 14
-7.0
+2.0
 1
 1
 NIL

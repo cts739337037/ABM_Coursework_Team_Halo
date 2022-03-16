@@ -1,80 +1,37 @@
-turtles-own
-[
-  infected?
-  resistant?
-  rumor-check-timer
-]
+;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Setup Procedures ;;;
+;;;;;;;;;;;;;;;;;;;;;;;;
 
 to setup
   clear-all
-  set-default-shape turtles "person"
-  make-node nobody
-  make-node turtle 0
+  set-default-shape turtles "circle"
+  ;; make the initial network of two turtles and an edge
+  make-node nobody        ;; first node, unattached
+  make-node turtle 0      ;; second node, attached to first node
   reset-ticks
 end
 
+;;;;;;;;;;;;;;;;;;;;;;;
+;;; Main Procedures ;;;
+;;;;;;;;;;;;;;;;;;;;;;;
 
 to go
+  ;; new edge is green, old edges are gray
   ask links [ set color gray ]
-  make-node find-partner
+  make-node find-partner         ;; find partner & use it as attachment
+                                 ;; point for new node
   tick
   if layout? [ layout ]
 end
 
-to setup_rumors
-  ask turtles [
-  set infected? false
-  set resistant? false
-  ]
-  ask n-of initial-outbreak-size turtles
-    [ become-infected ]
-  reset-ticks
-end
-
-to setup_wisers
-  ask turtles [
-  set infected? false
-  set resistant? true
-  ]
-  ask n-of initial-wiser-size turtles
-    [ become-wiser ]
-  reset-ticks
-end
-
-to set-all-susceptible
-  ask turtles [
-    set color blue
-  ]
-end
-
-to remove-infected
-    ask turtles with [color = red][
-    set color blue
-  ]
-end
-
-to spread-rumors
-  if all? turtles [not infected?]
-    [ stop ]
-  ask turtles
-  [
-     set rumor-check-timer rumor-check-timer + 1
-     if rumor-check-timer >= rumor-check-frequency
-       [ set rumor-check-timer 0 ]
-  ]
-  spread-rumor
-  do-rumor-checks
-
-  tick
-end
-
+;; used for creating a new node
 to make-node [old-node]
   create-turtles 1
   [
-    set color blue
-    set size 2
+    set color red
     if old-node != nobody
       [ create-link-with old-node [ set color green ]
+        ;; position the new node near its partner
         move-to old-node
         fd 8
       ]
@@ -99,6 +56,9 @@ end
 to resize-nodes
   ifelse all? turtles [size <= 1]
   [
+    ;; a node is a circle with diameter determined by
+    ;; the SIZE variable; using SQRT makes the circle's
+    ;; area proportional to its degree
     ask turtles [ set size sqrt count link-neighbors ]
   ]
   [
@@ -107,13 +67,20 @@ to resize-nodes
 end
 
 to layout
+  ;; the number 3 here is arbitrary; more repetitions slows down the
+  ;; model, but too few gives poor layouts
   repeat 3 [
+    ;; the more turtles we have to fit into the same amount of space,
+    ;; the smaller the inputs to layout-spring we'll need to use
     let factor sqrt count turtles
+    ;; numbers here are arbitrarily chosen for pleasing appearance
     layout-spring turtles links (1 / factor) (7 / factor) (1 / factor)
-    display
+    display  ;; for smooth animation
   ]
+  ;; don't bump the edges of the world
   let x-offset max [xcor] of turtles + min [xcor] of turtles
   let y-offset max [ycor] of turtles + min [ycor] of turtles
+  ;; big jumps look funny, so only adjust a little each time
   set x-offset limit-magnitude x-offset 0.1
   set y-offset limit-magnitude y-offset 0.1
   ask turtles [ setxy (xcor - x-offset / 2) (ycor - y-offset / 2) ]
@@ -125,414 +92,42 @@ to-report limit-magnitude [number limit]
   report number
 end
 
-to become-infected
-  set infected? true
-  set resistant? false
-  set color red
-end
 
-to become-wiser
-  set infected? false
-  set resistant? true
-  set color yellow
-end
-
-to become-susceptible
-  set infected? false
-  set resistant? false
-  set color blue
-end
-
-to become-resistant
-  set infected? false
-  set resistant? true
-  set color gray
-  ask my-links [ set color gray - 2 ]
-end
-
-to spread-rumor
-  ask turtles with [infected?]
-    [ ask link-neighbors with [not resistant?]
-        [ if random-float 100 < rumor-spread-chance
-            [ become-infected ] ] ]
-end
-
-to do-rumor-checks
-  ask turtles with [not infected? and rumor-check-timer = 0]
-  [
-     ifelse random 100 < gain-resistance-chance
-      [ become-resistant ]
-      [ become-susceptible ]
-  ]
-end
+; Copyright 2005 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-319
-23
-870
-575
+345
+10
+808
+474
 -1
 -1
-5.38
+5.0
 1
 10
 1
 1
 1
 0
-1
-1
-1
--50
-50
--50
-50
 0
 0
+1
+-45
+45
+-45
+45
+1
+1
 1
 ticks
-30.0
-
-BUTTON
-37
-42
-103
-75
-setup
-setup\n
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-252
-40
-315
-73
-go
-go\n
-T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-0
-
-BUTTON
-137
-41
-217
-74
-go-once
-go
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-0
-
-BUTTON
-47
-103
-155
-136
-redo layout
-layout
-T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-0
-
-BUTTON
-196
-103
-310
-136
-resize nodes
-resize-nodes
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-0
-
-SWITCH
-52
-160
-155
-193
-plot?
-plot?
-0
-1
--1000
-
-SWITCH
-203
-159
-309
-192
-layout?
-layout?
-0
-1
--1000
-
-BUTTON
-65
-206
-179
-239
-setup-rumors
-setup_rumors\n
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-178
-206
-299
-239
-spread-rumors
-spread-rumors
-T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-SLIDER
-871
-35
-1066
-68
-initial-outbreak-size
-initial-outbreak-size
-0
-50
-42.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-873
-142
-1068
-175
-rumor-check-frequency
-rumor-check-frequency
-0
-14
-7.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-874
-199
-1069
-232
-rumor-spread-chance
-rumor-spread-chance
-0
-100
-55.0
-1
-1
-%
-HORIZONTAL
-
-SLIDER
-872
-250
-1088
-283
-gain-resistance-chance
-gain-resistance-chance
-0
-100
-51.0
-1
-1
-%
-HORIZONTAL
-
-BUTTON
-87
-293
-250
-326
-set-all-susceptible
-set-all-susceptible
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-74
-362
-209
-395
-remove-infected
-remove-infected
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-SLIDER
-874
-92
-1048
-125
-initial-wiser-size
-initial-wiser-size
-0
-100
-10.0
-1
-1
-NIL
-HORIZONTAL
-
-BUTTON
-65
-250
-179
-283
-setup-wisers
-setup_wisers
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-180
-249
-297
-283
-spread-wiser
-spread-wiser
-T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-MONITOR
-944
-362
-1068
-407
-Number of people
-count turtles
-17
-1
-11
-
-MONITOR
-945
-434
-1131
-479
-Number of wiser
-count turtles with\n[color = white]
-17
-1
-11
-
-MONITOR
-946
-506
-1084
-551
-Number of infected
-count turtles with [color = red]
-17
-1
-11
+60.0
 
 PLOT
-71
-412
-271
-562
-Degree Distribution
-degree
-# of nodes
-1.0
-10.0
-0.0
-10.0
-true
-false
-"" ""
-PENS
-"default" 1.0 1 -16777216 true "" "if not plot? [ stop ]\nlet max-degree max [count link-neighbors] of turtles\nplot-pen-reset  ;; erase what we plotted before\nset-plot-x-range 1 (max-degree + 1)  ;; + 1 to make room for the width of the last bar\nhistogram [count link-neighbors] of turtles"
-
-PLOT
-287
-621
-487
-771
+8
+330
+333
+496
 Degree Distribution (log-log)
 log(degree)
 log(# of nodes)
@@ -546,42 +141,243 @@ false
 PENS
 "default" 1.0 2 -16777216 true "" "if not plot? [ stop ]\nlet max-degree max [count link-neighbors] of turtles\n;; for this plot, the axes are logarithmic, so we can't\n;; use \"histogram-from\"; we have to plot the points\n;; ourselves one at a time\nplot-pen-reset  ;; erase what we plotted before\n;; the way we create the network there is never a zero degree node,\n;; so start plotting at degree one\nlet degree 1\nwhile [degree <= max-degree] [\n  let matches turtles with [count link-neighbors = degree]\n  if any? matches\n    [ plotxy log degree 10\n             log (count matches) 10 ]\n  set degree degree + 1\n]"
 
+PLOT
+8
+153
+333
+329
+Degree Distribution
+degree
+# of nodes
+1.0
+10.0
+0.0
+10.0
+true
+false
+"" ""
+PENS
+"default" 1.0 1 -16777216 true "" "if not plot? [ stop ]\nlet max-degree max [count link-neighbors] of turtles\nplot-pen-reset  ;; erase what we plotted before\nset-plot-x-range 1 (max-degree + 1)  ;; + 1 to make room for the width of the last bar\nhistogram [count link-neighbors] of turtles"
+
+BUTTON
+6
+25
+72
+58
+NIL
+setup
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+93
+64
+170
+97
+NIL
+go
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
+
+BUTTON
+6
+64
+91
+97
+go-once
+go
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
+
+SWITCH
+187
+30
+333
+63
+plot?
+plot?
+0
+1
+-1000
+
+SWITCH
+187
+64
+333
+97
+layout?
+layout?
+0
+1
+-1000
+
+MONITOR
+237
+100
+316
+145
+# of nodes
+count turtles
+3
+1
+11
+
+BUTTON
+7
+102
+109
+135
+redo layout
+layout
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
+
+BUTTON
+115
+102
+225
+135
+resize nodes
+resize-nodes
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
+
 @#$#@#$#@
 ## WHAT IS IT?
 
-(a general understanding of what the model is trying to show or explain)
+In some networks, a few "hubs" have lots of connections, while everybody else only has a few.  This model shows one way such networks can arise.
+
+Such networks can be found in a surprisingly large range of real world situations, ranging from the connections between websites to the collaborations between actors.
+
+This model generates these networks by a process of "preferential attachment", in which new network members prefer to make a connection to the more popular existing members.
 
 ## HOW IT WORKS
 
-(what rules the agents use to create the overall behavior of the model)
+The model starts with two nodes connected by an edge.
+
+At each step, a new node is added.  A new node picks an existing node to connect to randomly, but with some bias.  More specifically, a node's chance of being selected is directly proportional to the number of connections it already has, or its "degree." This is the mechanism which is called "preferential attachment."
 
 ## HOW TO USE IT
 
-(how to use the model, including a description of each of the items in the Interface tab)
+Pressing the GO ONCE button adds one new node.  To continuously add nodes, press GO.
+
+The LAYOUT? switch controls whether or not the layout procedure is run.  This procedure attempts to move the nodes around to make the structure of the network easier to see.
+
+The PLOT? switch turns off the plots which speeds up the model.
+
+The RESIZE-NODES button will make all of the nodes take on a size representative of their degree distribution.  If you press it again the nodes will return to equal size.
+
+If you want the model to run faster, you can turn off the LAYOUT? and PLOT? switches and/or freeze the view (using the on/off button in the control strip over the view). The LAYOUT? switch has the greatest effect on the speed of the model.
+
+If you have LAYOUT? switched off, and then want the network to have a more appealing layout, press the REDO-LAYOUT button which will run the layout-step procedure until you press the button again. You can press REDO-LAYOUT at any time even if you had LAYOUT? switched on and it will try to make the network easier to see.
 
 ## THINGS TO NOTICE
 
-(suggested things for the user to notice while running the model)
+The networks that result from running this model are often called "scale-free" or "power law" networks. These are networks in which the distribution of the number of connections of each node is not a normal distribution --- instead it follows what is a called a power law distribution.  Power law distributions are different from normal distributions in that they do not have a peak at the average, and they are more likely to contain extreme values (see Albert & Barabási 2002 for a further description of the frequency and significance of scale-free networks).  Barabási and Albert originally described this mechanism for creating networks, but there are other mechanisms of creating scale-free networks and so the networks created by the mechanism implemented in this model are referred to as Barabási scale-free networks.
+
+You can see the degree distribution of the network in this model by looking at the plots. The top plot is a histogram of the degree of each node.  The bottom plot shows the same data, but both axes are on a logarithmic scale.  When degree distribution follows a power law, it appears as a straight line on the log-log plot.  One simple way to think about power laws is that if there is one node with a degree distribution of 1000, then there will be ten nodes with a degree distribution of 100, and 100 nodes with a degree distribution of 10.
 
 ## THINGS TO TRY
 
-(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
+Let the model run a little while.  How many nodes are "hubs", that is, have many connections?  How many have only a few?  Does some low degree node ever become a hub?  How often?
+
+Turn off the LAYOUT? switch and freeze the view to speed up the model, then allow a large network to form.  What is the shape of the histogram in the top plot?  What do you see in log-log plot? Notice that the log-log plot is only a straight line for a limited range of values.  Why is this?  Does the degree to which the log-log plot resembles a straight line grow as you add more nodes to the network?
 
 ## EXTENDING THE MODEL
 
-(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
+Assign an additional attribute to each node.  Make the probability of attachment depend on this new attribute as well as on degree.  (A bias slider could control how much the attribute influences the decision.)
+
+Can the layout algorithm be improved?  Perhaps nodes from different hubs could repel each other more strongly than nodes from the same hub, in order to encourage the hubs to be physically separate in the layout.
+
+## NETWORK CONCEPTS
+
+There are many ways to graphically display networks.  This model uses a common "spring" method where the movement of a node at each time step is the net result of "spring" forces that pulls connected nodes together and repulsion forces that push all the nodes away from each other.  This code is in the `layout-step` procedure. You can force this code to execute any time by pressing the REDO LAYOUT button, and pressing it again when you are happy with the layout.
 
 ## NETLOGO FEATURES
 
-(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
+Nodes are turtle agents and edges are link agents. The model uses the ONE-OF primitive to chose a random link and the BOTH-ENDS primitive to select the two nodes attached to that link.
+
+The `layout-spring` primitive places the nodes, as if the edges are springs and the nodes are repelling each other.
+
+Though it is not used in this model, there exists a network extension for NetLogo that comes bundled with NetLogo, that has many more network primitives.
 
 ## RELATED MODELS
 
-(models in the NetLogo Models Library and elsewhere which are of related interest)
+See other models in the Networks section of the Models Library, such as Giant Component.
+
+See also Network Example, in the Code Examples section.
 
 ## CREDITS AND REFERENCES
 
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
+This model is based on:
+Albert-László Barabási. Linked: The New Science of Networks, Perseus Publishing, Cambridge, Massachusetts, pages 79-92.
+
+For a more technical treatment, see:
+Albert-László Barabási & Reka Albert. Emergence of Scaling in Random Networks, Science, Vol 286, Issue 5439, 15 October 1999, pages 509-512.
+
+The layout algorithm is based on the Fruchterman-Reingold layout algorithm.  More information about this algorithm can be obtained at: http://cs.brown.edu/people/rtamassi/gdhandbook/chapters/force-directed.pdf.
+
+For a model similar to the one described in the first suggested extension, please consult:
+W. Brian Arthur, "Urban Systems and Historical Path-Dependence", Chapt. 4 in Urban systems and Infrastructure, J. Ausubel and R. Herman (eds.), National Academy of Sciences, Washington, D.C., 1988.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Wilensky, U. (2005).  NetLogo Preferential Attachment model.  http://ccl.northwestern.edu/netlogo/models/PreferentialAttachment.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2005 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2005 -->
 @#$#@#$#@
 default
 true
@@ -775,22 +571,6 @@ Polygon -7500403 true true 135 105 90 60 45 45 75 105 135 135
 Polygon -7500403 true true 165 105 165 135 225 105 255 45 210 60
 Polygon -7500403 true true 135 90 120 45 150 15 180 45 165 90
 
-sheep
-false
-15
-Circle -1 true true 203 65 88
-Circle -1 true true 70 65 162
-Circle -1 true true 150 105 120
-Polygon -7500403 true false 218 120 240 165 255 165 278 120
-Circle -7500403 true false 214 72 67
-Rectangle -1 true true 164 223 179 298
-Polygon -1 true true 45 285 30 285 30 240 15 195 45 210
-Circle -1 true true 3 83 150
-Rectangle -1 true true 65 221 80 296
-Polygon -1 true true 195 285 210 285 210 240 240 210 195 210
-Polygon -7500403 true false 276 85 285 105 302 99 294 83
-Polygon -7500403 true false 219 85 210 105 193 99 201 83
-
 square
 false
 0
@@ -875,13 +655,6 @@ Line -7500403 true 40 84 269 221
 Line -7500403 true 40 216 269 79
 Line -7500403 true 84 40 221 269
 
-wolf
-false
-0
-Polygon -16777216 true false 253 133 245 131 245 133
-Polygon -7500403 true true 2 194 13 197 30 191 38 193 38 205 20 226 20 257 27 265 38 266 40 260 31 253 31 230 60 206 68 198 75 209 66 228 65 243 82 261 84 268 100 267 103 261 77 239 79 231 100 207 98 196 119 201 143 202 160 195 166 210 172 213 173 238 167 251 160 248 154 265 169 264 178 247 186 240 198 260 200 271 217 271 219 262 207 258 195 230 192 198 210 184 227 164 242 144 259 145 284 151 277 141 293 140 299 134 297 127 273 119 270 105
-Polygon -7500403 true true -1 195 14 180 36 166 40 153 53 140 82 131 134 133 159 126 188 115 227 108 236 102 238 98 268 86 269 92 281 87 269 103 269 113
-
 x
 false
 0
@@ -890,6 +663,10 @@ Polygon -7500403 true true 30 75 75 30 270 225 225 270
 @#$#@#$#@
 NetLogo 6.2.1
 @#$#@#$#@
+set layout? false
+set plot? false
+setup repeat 300 [ go ]
+repeat 100 [ layout ]
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@

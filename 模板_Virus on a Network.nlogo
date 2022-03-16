@@ -1,587 +1,372 @@
 turtles-own
 [
-  infected?
-  resistant?
-  rumor-check-timer
+  infected?           ;; if true, the turtle is infectious
+  resistant?          ;; if true, the turtle can't be infected
+  virus-check-timer   ;; number of ticks since this turtle's last virus-check
 ]
 
 to setup
   clear-all
-  set-default-shape turtles "person"
-  make-node nobody
-  make-node turtle 0
-  reset-ticks
-end
-
-
-to go
-  ask links [ set color gray ]
-  make-node find-partner
-  tick
-  if layout? [ layout ]
-end
-
-to setup_rumors
-  ask turtles [
-  set infected? false
-  set resistant? false
-  ]
+  setup-nodes
+  setup-spatially-clustered-network
   ask n-of initial-outbreak-size turtles
     [ become-infected ]
+  ask links [ set color white ]
   reset-ticks
 end
 
-to setup_wisers
-  ask turtles [
-  set infected? false
-  set resistant? true
-  ]
-  ask n-of initial-wiser-size turtles
-    [ become-wiser ]
-  reset-ticks
-end
-
-to set-all-susceptible
-  ask turtles [
-    set color blue
+to setup-nodes
+  set-default-shape turtles "circle"
+  create-turtles number-of-nodes
+  [
+    ; for visual reasons, we don't put any nodes *too* close to the edges
+    setxy (random-xcor * 0.95) (random-ycor * 0.95)
+    become-susceptible
+    set virus-check-timer random virus-check-frequency
   ]
 end
 
-to remove-infected
-    ask turtles with [color = red][
-    set color blue
+to setup-spatially-clustered-network
+  let num-links (average-node-degree * number-of-nodes) / 2
+  while [count links < num-links ]
+  [
+    ask one-of turtles
+    [
+      let choice (min-one-of (other turtles with [not link-neighbor? myself])
+                   [distance myself])
+      if choice != nobody [ create-link-with choice ]
+    ]
+  ]
+  ; make the network look a little prettier
+  repeat 10
+  [
+    layout-spring turtles links 0.3 (world-width / (sqrt number-of-nodes)) 1
   ]
 end
 
-to spread-rumors
+to go
   if all? turtles [not infected?]
     [ stop ]
   ask turtles
   [
-     set rumor-check-timer rumor-check-timer + 1
-     if rumor-check-timer >= rumor-check-frequency
-       [ set rumor-check-timer 0 ]
+     set virus-check-timer virus-check-timer + 1
+     if virus-check-timer >= virus-check-frequency
+       [ set virus-check-timer 0 ]
   ]
-  spread-rumor
-  do-rumor-checks
-
+  spread-virus
+  do-virus-checks
   tick
 end
 
-to make-node [old-node]
-  create-turtles 1
-  [
-    set color blue
-    set size 2
-    if old-node != nobody
-      [ create-link-with old-node [ set color green ]
-        move-to old-node
-        fd 8
-      ]
-  ]
-end
-
-;; This code is the heart of the "preferential attachment" mechanism, and acts like
-;; a lottery where each node gets a ticket for every connection it already has.
-;; While the basic idea is the same as in the Lottery Example (in the Code Examples
-;; section of the Models Library), things are made simpler here by the fact that we
-;; can just use the links as if they were the "tickets": we first pick a random link,
-;; and than we pick one of the two ends of that link.
-to-report find-partner
-  report [one-of both-ends] of one-of links
-end
-
-;;;;;;;;;;;;;;
-;;; Layout ;;;
-;;;;;;;;;;;;;;
-
-;; resize-nodes, change back and forth from size based on degree to a size of 1
-to resize-nodes
-  ifelse all? turtles [size <= 1]
-  [
-    ask turtles [ set size sqrt count link-neighbors ]
-  ]
-  [
-    ask turtles [ set size 1 ]
-  ]
-end
-
-to layout
-  repeat 3 [
-    let factor sqrt count turtles
-    layout-spring turtles links (1 / factor) (7 / factor) (1 / factor)
-    display
-  ]
-  let x-offset max [xcor] of turtles + min [xcor] of turtles
-  let y-offset max [ycor] of turtles + min [ycor] of turtles
-  set x-offset limit-magnitude x-offset 0.1
-  set y-offset limit-magnitude y-offset 0.1
-  ask turtles [ setxy (xcor - x-offset / 2) (ycor - y-offset / 2) ]
-end
-
-to-report limit-magnitude [number limit]
-  if number > limit [ report limit ]
-  if number < (- limit) [ report (- limit) ]
-  report number
-end
-
-to become-infected
+to become-infected  ;; turtle procedure
   set infected? true
   set resistant? false
   set color red
 end
 
-to become-wiser
-  set infected? false
-  set resistant? true
-  set color yellow
-end
-
-to become-susceptible
+to become-susceptible  ;; turtle procedure
   set infected? false
   set resistant? false
   set color blue
 end
 
-to become-resistant
+to become-resistant  ;; turtle procedure
   set infected? false
   set resistant? true
   set color gray
   ask my-links [ set color gray - 2 ]
 end
 
-to spread-rumor
+to spread-virus
   ask turtles with [infected?]
     [ ask link-neighbors with [not resistant?]
-        [ if random-float 100 < rumor-spread-chance
+        [ if random-float 100 < virus-spread-chance
             [ become-infected ] ] ]
 end
 
-to do-rumor-checks
-  ask turtles with [not infected? and rumor-check-timer = 0]
+to do-virus-checks
+  ask turtles with [infected? and virus-check-timer = 0]
   [
-     ifelse random 100 < gain-resistance-chance
-      [ become-resistant ]
-      [ become-susceptible ]
+    if random 100 < recovery-chance
+    [
+      ifelse random 100 < gain-resistance-chance
+        [ become-resistant ]
+        [ become-susceptible ]
+    ]
   ]
 end
+
+
+; Copyright 2008 Uri Wilensky.
+; See Info tab for full copyright and license.
 @#$#@#$#@
 GRAPHICS-WINDOW
-319
-23
-870
-575
+265
+10
+724
+470
 -1
 -1
-5.38
+11.0
 1
 10
 1
 1
 1
 0
-1
-1
-1
--50
-50
--50
-50
 0
 0
+1
+-20
+20
+-20
+20
+1
+1
 1
 ticks
 30.0
 
-BUTTON
-37
-42
-103
-75
-setup
-setup\n
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-252
-40
-315
-73
-go
-go\n
-T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-0
-
-BUTTON
-137
-41
-217
-74
-go-once
-go
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-0
-
-BUTTON
-47
-103
-155
-136
-redo layout
-layout
-T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-0
-
-BUTTON
-196
-103
-310
-136
-resize nodes
-resize-nodes
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-0
-
-SWITCH
-52
-160
-155
-193
-plot?
-plot?
-0
-1
--1000
-
-SWITCH
-203
-159
-309
-192
-layout?
-layout?
-0
-1
--1000
-
-BUTTON
-65
-206
-179
-239
-setup-rumors
-setup_rumors\n
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-178
-206
-299
-239
-spread-rumors
-spread-rumors
-T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
 SLIDER
-871
-35
-1066
-68
-initial-outbreak-size
-initial-outbreak-size
-0
-50
-42.0
+25
+280
+230
+313
+gain-resistance-chance
+gain-resistance-chance
+0.0
+100
+5.0
 1
 1
-NIL
+%
 HORIZONTAL
 
 SLIDER
-873
-142
-1068
+25
+245
+230
+278
+recovery-chance
+recovery-chance
+0.0
+10.0
+5.0
+0.1
+1
+%
+HORIZONTAL
+
+SLIDER
+25
 175
-rumor-check-frequency
-rumor-check-frequency
-0
-14
-7.0
-1
-1
-NIL
-HORIZONTAL
-
-SLIDER
-874
-199
-1069
-232
-rumor-spread-chance
-rumor-spread-chance
-0
-100
-55.0
-1
-1
-%
-HORIZONTAL
-
-SLIDER
-872
-250
-1088
-283
-gain-resistance-chance
-gain-resistance-chance
-0
-100
-51.0
-1
+230
+208
+virus-spread-chance
+virus-spread-chance
+0.0
+10.0
+2.5
+0.1
 1
 %
 HORIZONTAL
 
 BUTTON
-87
-293
-250
-326
-set-all-susceptible
-set-all-susceptible
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-74
-362
-209
-395
-remove-infected
-remove-infected
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-SLIDER
-874
-92
-1048
+25
 125
-initial-wiser-size
-initial-wiser-size
+120
+165
+NIL
+setup
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+135
+125
+230
+165
+NIL
+go
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
 0
-100
-10.0
+
+PLOT
+5
+325
+260
+489
+Network Status
+time
+% of nodes
+0.0
+52.0
+0.0
+100.0
+true
+true
+"" ""
+PENS
+"susceptible" 1.0 0 -13345367 true "" "plot (count turtles with [not infected? and not resistant?]) / (count turtles) * 100"
+"infected" 1.0 0 -2674135 true "" "plot (count turtles with [infected?]) / (count turtles) * 100"
+"resistant" 1.0 0 -7500403 true "" "plot (count turtles with [resistant?]) / (count turtles) * 100"
+
+SLIDER
+25
+15
+230
+48
+number-of-nodes
+number-of-nodes
+10
+300
+150.0
+5
+1
+NIL
+HORIZONTAL
+
+SLIDER
+25
+210
+230
+243
+virus-check-frequency
+virus-check-frequency
+1
+20
+1.0
+1
+1
+ticks
+HORIZONTAL
+
+SLIDER
+25
+85
+230
+118
+initial-outbreak-size
+initial-outbreak-size
+1
+number-of-nodes
+3.0
 1
 1
 NIL
 HORIZONTAL
 
-BUTTON
-65
-250
-179
-283
-setup-wisers
-setup_wisers
-NIL
+SLIDER
+25
+50
+230
+83
+average-node-degree
+average-node-degree
 1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
+number-of-nodes - 1
+6.0
 1
-
-BUTTON
-180
-249
-297
-283
-spread-wiser
-spread-wiser
-T
 1
-T
-OBSERVER
 NIL
-NIL
-NIL
-NIL
-1
-
-MONITOR
-944
-362
-1068
-407
-Number of people
-count turtles
-17
-1
-11
-
-MONITOR
-945
-434
-1131
-479
-Number of wiser
-count turtles with\n[color = white]
-17
-1
-11
-
-MONITOR
-946
-506
-1084
-551
-Number of infected
-count turtles with [color = red]
-17
-1
-11
-
-PLOT
-71
-412
-271
-562
-Degree Distribution
-degree
-# of nodes
-1.0
-10.0
-0.0
-10.0
-true
-false
-"" ""
-PENS
-"default" 1.0 1 -16777216 true "" "if not plot? [ stop ]\nlet max-degree max [count link-neighbors] of turtles\nplot-pen-reset  ;; erase what we plotted before\nset-plot-x-range 1 (max-degree + 1)  ;; + 1 to make room for the width of the last bar\nhistogram [count link-neighbors] of turtles"
-
-PLOT
-287
-621
-487
-771
-Degree Distribution (log-log)
-log(degree)
-log(# of nodes)
-0.0
-0.3
-0.0
-0.3
-true
-false
-"" ""
-PENS
-"default" 1.0 2 -16777216 true "" "if not plot? [ stop ]\nlet max-degree max [count link-neighbors] of turtles\n;; for this plot, the axes are logarithmic, so we can't\n;; use \"histogram-from\"; we have to plot the points\n;; ourselves one at a time\nplot-pen-reset  ;; erase what we plotted before\n;; the way we create the network there is never a zero degree node,\n;; so start plotting at degree one\nlet degree 1\nwhile [degree <= max-degree] [\n  let matches turtles with [count link-neighbors = degree]\n  if any? matches\n    [ plotxy log degree 10\n             log (count matches) 10 ]\n  set degree degree + 1\n]"
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
 
-(a general understanding of what the model is trying to show or explain)
+This model demonstrates the spread of a virus through a network.  Although the model is somewhat abstract, one interpretation is that each node represents a computer, and we are modeling the progress of a computer virus (or worm) through this network.  Each node may be in one of three states:  susceptible, infected, or resistant.  In the academic literature such a model is sometimes referred to as an SIR model for epidemics.
 
 ## HOW IT WORKS
 
-(what rules the agents use to create the overall behavior of the model)
+Each time step (tick), each infected node (colored red) attempts to infect all of its neighbors.  Susceptible neighbors (colored green) will be infected with a probability given by the VIRUS-SPREAD-CHANCE slider.  This might correspond to the probability that someone on the susceptible system actually executes the infected email attachment.
+Resistant nodes (colored gray) cannot be infected.  This might correspond to up-to-date antivirus software and security patches that make a computer immune to this particular virus.
+
+Infected nodes are not immediately aware that they are infected.  Only every so often (determined by the VIRUS-CHECK-FREQUENCY slider) do the nodes check whether they are infected by a virus.  This might correspond to a regularly scheduled virus-scan procedure, or simply a human noticing something fishy about how the computer is behaving.  When the virus has been detected, there is a probability that the virus will be removed (determined by the RECOVERY-CHANCE slider).
+
+If a node does recover, there is some probability that it will become resistant to this virus in the future (given by the GAIN-RESISTANCE-CHANCE slider).
+
+When a node becomes resistant, the links between it and its neighbors are darkened, since they are no longer possible vectors for spreading the virus.
 
 ## HOW TO USE IT
 
-(how to use the model, including a description of each of the items in the Interface tab)
+Using the sliders, choose the NUMBER-OF-NODES and the AVERAGE-NODE-DEGREE (average number of links coming out of each node).
+
+The network that is created is based on proximity (Euclidean distance) between nodes.  A node is randomly chosen and connected to the nearest node that it is not already connected to.  This process is repeated until the network has the correct number of links to give the specified average node degree.
+
+The INITIAL-OUTBREAK-SIZE slider determines how many of the nodes will start the simulation infected with the virus.
+
+Then press SETUP to create the network.  Press GO to run the model.  The model will stop running once the virus has completely died out.
+
+The VIRUS-SPREAD-CHANCE, VIRUS-CHECK-FREQUENCY, RECOVERY-CHANCE, and GAIN-RESISTANCE-CHANCE sliders (discussed in "How it Works" above) can be adjusted before pressing GO, or while the model is running.
+
+The NETWORK STATUS plot shows the number of nodes in each state (S, I, R) over time.
 
 ## THINGS TO NOTICE
 
-(suggested things for the user to notice while running the model)
+At the end of the run, after the virus has died out, some nodes are still susceptible, while others have become immune.  What is the ratio of the number of immune nodes to the number of susceptible nodes?  How is this affected by changing the AVERAGE-NODE-DEGREE of the network?
 
 ## THINGS TO TRY
 
-(suggested things for the user to try to do (move sliders, switches, etc.) with the model)
+Set GAIN-RESISTANCE-CHANCE to 0%.  Under what conditions will the virus still die out?   How long does it take?  What conditions are required for the virus to live?  If the RECOVERY-CHANCE is bigger than 0, even if the VIRUS-SPREAD-CHANCE is high, do you think that if you could run the model forever, the virus could stay alive?
 
 ## EXTENDING THE MODEL
 
-(suggested things to add or change in the Code tab to make the model more complicated, detailed, accurate, etc.)
+The real computer networks on which viruses spread are generally not based on spatial proximity, like the networks found in this model.  Real computer networks are more often found to exhibit a "scale-free" link-degree distribution, somewhat similar to networks created using the Preferential Attachment model.  Try experimenting with various alternative network structures, and see how the behavior of the virus differs.
 
-## NETLOGO FEATURES
+Suppose the virus is spreading by emailing itself out to everyone in the computer's address book.  Since being in someone's address book is not a symmetric relationship, change this model to use directed links instead of undirected links.
 
-(interesting or unusual features of NetLogo that the model uses, particularly in the Code tab; or where workarounds were needed for missing features)
+Can you model multiple viruses at the same time?  How would they interact?  Sometimes if a computer has a piece of malware installed, it is more vulnerable to being infected by more malware.
+
+Try making a model similar to this one, but where the virus has the ability to mutate itself.  Such self-modifying viruses are a considerable threat to computer security, since traditional methods of virus signature identification may not work against them.  In your model, nodes that become immune may be reinfected if the virus has mutated to become significantly different than the variant that originally infected the node.
 
 ## RELATED MODELS
 
-(models in the NetLogo Models Library and elsewhere which are of related interest)
+Virus, Disease, Preferential Attachment, Diffusion on a Directed Network
 
-## CREDITS AND REFERENCES
+## NETLOGO FEATURES
 
-(a reference to the model's URL on the web if it has one, as well as any other necessary credits, citations, and links)
+Links are used for modeling the network.  The `layout-spring` primitive is used to position the nodes and links such that the structure of the network is visually clear.
+
+Though it is not used in this model, there exists a network extension for NetLogo that you can download at: https://github.com/NetLogo/NW-Extension.
+
+## HOW TO CITE
+
+If you mention this model or the NetLogo software in a publication, we ask that you include the citations below.
+
+For the model itself:
+
+* Stonedahl, F. and Wilensky, U. (2008).  NetLogo Virus on a Network model.  http://ccl.northwestern.edu/netlogo/models/VirusonaNetwork.  Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+Please cite the NetLogo software as:
+
+* Wilensky, U. (1999). NetLogo. http://ccl.northwestern.edu/netlogo/. Center for Connected Learning and Computer-Based Modeling, Northwestern University, Evanston, IL.
+
+## COPYRIGHT AND LICENSE
+
+Copyright 2008 Uri Wilensky.
+
+![CC BY-NC-SA 3.0](http://ccl.northwestern.edu/images/creativecommons/byncsa.png)
+
+This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 License.  To view a copy of this license, visit https://creativecommons.org/licenses/by-nc-sa/3.0/ or send a letter to Creative Commons, 559 Nathan Abbott Way, Stanford, California 94305, USA.
+
+Commercial licenses are also available. To inquire about commercial licenses, please contact Uri Wilensky at uri@northwestern.edu.
+
+<!-- 2008 Cite: Stonedahl, F. -->
 @#$#@#$#@
 default
 true
@@ -775,22 +560,6 @@ Polygon -7500403 true true 135 105 90 60 45 45 75 105 135 135
 Polygon -7500403 true true 165 105 165 135 225 105 255 45 210 60
 Polygon -7500403 true true 135 90 120 45 150 15 180 45 165 90
 
-sheep
-false
-15
-Circle -1 true true 203 65 88
-Circle -1 true true 70 65 162
-Circle -1 true true 150 105 120
-Polygon -7500403 true false 218 120 240 165 255 165 278 120
-Circle -7500403 true false 214 72 67
-Rectangle -1 true true 164 223 179 298
-Polygon -1 true true 45 285 30 285 30 240 15 195 45 210
-Circle -1 true true 3 83 150
-Rectangle -1 true true 65 221 80 296
-Polygon -1 true true 195 285 210 285 210 240 240 210 195 210
-Polygon -7500403 true false 276 85 285 105 302 99 294 83
-Polygon -7500403 true false 219 85 210 105 193 99 201 83
-
 square
 false
 0
@@ -874,13 +643,6 @@ Line -7500403 true 216 40 79 269
 Line -7500403 true 40 84 269 221
 Line -7500403 true 40 216 269 79
 Line -7500403 true 84 40 221 269
-
-wolf
-false
-0
-Polygon -16777216 true false 253 133 245 131 245 133
-Polygon -7500403 true true 2 194 13 197 30 191 38 193 38 205 20 226 20 257 27 265 38 266 40 260 31 253 31 230 60 206 68 198 75 209 66 228 65 243 82 261 84 268 100 267 103 261 77 239 79 231 100 207 98 196 119 201 143 202 160 195 166 210 172 213 173 238 167 251 160 248 154 265 169 264 178 247 186 240 198 260 200 271 217 271 219 262 207 258 195 230 192 198 210 184 227 164 242 144 259 145 284 151 277 141 293 140 299 134 297 127 273 119 270 105
-Polygon -7500403 true true -1 195 14 180 36 166 40 153 53 140 82 131 134 133 159 126 188 115 227 108 236 102 238 98 268 86 269 92 281 87 269 103 269 113
 
 x
 false
