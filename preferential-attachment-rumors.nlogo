@@ -75,7 +75,7 @@ end
 to spread-wisers
   ask links [ set color gray ]
   make-node find-partner
-  if all? turtles [not resistant?]
+  if all? turtles [not infected?]
     [ stop ]
   ask turtles
   [
@@ -106,8 +106,6 @@ end
 to spread-r-w-together
   ask links [ set color gray ]
   make-node find-partner
-  if all? turtles [not resistant?]
-    [ stop ]
   if all? turtles [not infected?]
     [ stop ]
   ask turtles
@@ -126,8 +124,6 @@ end
 to spread-r-sw-together
   ask links [ set color gray ]
   make-node find-partner
-  if all? turtles [not resistant?]
-    [ stop ]
   if all? turtles [not infected?]
     [ stop ]
   ask turtles
