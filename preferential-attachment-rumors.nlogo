@@ -38,13 +38,13 @@ end
 
 to set-all-susceptible
   ask turtles [
-    set color blue
+    become-susceptible
   ]
 end
 
 to remove-infected
     ask turtles with [color = red][
-    set color blue
+    become-susceptible
   ]
 end
 
@@ -91,7 +91,7 @@ end
 
 to spread-wiser
   ask turtles with [wiser?]
-    [ ask link-neighbors with [not resistant?]
+    [ ask link-neighbors with [not resistant? and not wiser?]
         [ if random-float 100 < wiser-spread-chance
             [ become-resistant ] ] ]
 end
@@ -222,7 +222,7 @@ end
 to become-susceptible
   set infected? false
   set resistant? false
-  set wiser? true
+  set wiser? false
   set color blue
 end
 
@@ -236,7 +236,7 @@ end
 
 
 to do-checks
-  ask turtles with [not infected? and not resistant? and rumor-check-timer = 0]
+  ask turtles with [not infected? and not resistant? and not wiser? and rumor-check-timer = 0]
   [
      if random 100 < gain-resistance-chance
       [ become-resistant ]
@@ -450,7 +450,7 @@ rumor-spread-chance
 rumor-spread-chance
 0
 100
-72.0
+13.0
 1
 1
 %
@@ -711,7 +711,7 @@ wiser-spread-chance
 wiser-spread-chance
 0
 100
-37.0
+10.0
 1
 1
 %
