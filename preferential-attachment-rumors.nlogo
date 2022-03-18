@@ -23,7 +23,6 @@ to go
 end
 
 to setup_rumors
-
   ask n-of initial-outbreak-size turtles
     [ become-infected ]
   reset-ticks
@@ -79,7 +78,6 @@ to spread-wisers
   ]
   spread-wiser
   do-checks
-  if layout? [ layout ]
   tick
 end
 
