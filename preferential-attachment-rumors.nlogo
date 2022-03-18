@@ -49,8 +49,6 @@ to remove-infected
 end
 
 to spread-rumors
-  ask links [ set color gray ]
-  make-node find-partner
   if all? turtles [not infected?]
     [ stop ]
   ask turtles
@@ -62,7 +60,6 @@ to spread-rumors
   spread-rumor
   do-checks
   tick
-  if layout? [ layout ]
 end
 
 to spread-rumor
@@ -73,8 +70,6 @@ to spread-rumor
 end
 
 to spread-wisers
-  ask links [ set color gray ]
-  make-node find-partner
   if all? turtles [not infected?]
     [ stop ]
   ask turtles
@@ -86,7 +81,6 @@ to spread-wisers
   spread-wiser
   do-checks
   tick
-  if layout? [ layout ]
 end
 
 to spread-wiser
@@ -104,8 +98,6 @@ to spread-super-wiser
 end
 
 to spread-r-w-together
-  ask links [ set color gray ]
-  make-node find-partner
   if all? turtles [not infected?]
     [ stop ]
   ask turtles
@@ -118,12 +110,9 @@ to spread-r-w-together
   spread-wiser
   do-checks
   tick
-  if layout? [ layout ]
 end
 
 to spread-r-sw-together
-  ask links [ set color gray ]
-  make-node find-partner
   if all? turtles [not infected?]
     [ stop ]
   ask turtles
@@ -137,7 +126,6 @@ to spread-r-sw-together
   spread-wiser
   do-checks
   tick
-  if layout? [ layout ]
 end
 
 
@@ -173,12 +161,12 @@ end
 
 ;; resize-nodes, change back and forth from size based on degree to a size of 1
 to resize-nodes
-  ifelse all? turtles [size <= 1]
+  ifelse all? turtles [size <= 2]
   [
     ask turtles [ set size sqrt count link-neighbors ]
   ]
   [
-    ask turtles [ set size 1 ]
+    ask turtles [ set size 2 ]
   ]
 end
 
@@ -416,7 +404,7 @@ initial-outbreak-size
 initial-outbreak-size
 0
 50
-42.0
+13.0
 1
 1
 NIL
@@ -431,7 +419,7 @@ check-frequency
 check-frequency
 0
 14
-7.0
+4.0
 1
 1
 NIL
@@ -446,7 +434,7 @@ rumor-spread-chance
 rumor-spread-chance
 0
 100
-13.0
+38.0
 1
 1
 %
@@ -461,7 +449,7 @@ gain-resistance-chance
 gain-resistance-chance
 0
 100
-6.0
+7.0
 1
 1
 %
