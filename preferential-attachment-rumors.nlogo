@@ -401,7 +401,7 @@ initial-outbreak-size
 initial-outbreak-size
 0
 50
-42.0
+13.0
 1
 1
 NIL
@@ -416,7 +416,7 @@ check-frequency
 check-frequency
 0
 14
-7.0
+4.0
 1
 1
 NIL
@@ -431,7 +431,7 @@ rumor-spread-chance
 rumor-spread-chance
 0
 100
-13.0
+38.0
 1
 1
 %
@@ -446,7 +446,7 @@ gain-resistance-chance
 gain-resistance-chance
 0
 100
-6.0
+7.0
 1
 1
 %
