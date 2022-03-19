@@ -121,7 +121,6 @@ to spread-r-sw-together
   ]
   spread-rumor
   spread-super-wiser
-  spread-wiser
   do-checks
   tick
 end
@@ -401,7 +400,7 @@ initial-outbreak-size
 initial-outbreak-size
 0
 50
-13.0
+50.0
 1
 1
 NIL
@@ -416,7 +415,7 @@ check-frequency
 check-frequency
 0
 14
-4.0
+0.0
 1
 1
 NIL
@@ -431,7 +430,7 @@ rumor-spread-chance
 rumor-spread-chance
 0
 100
-38.0
+100.0
 1
 1
 %
@@ -446,7 +445,7 @@ gain-resistance-chance
 gain-resistance-chance
 0
 100
-7.0
+0.0
 1
 1
 %
@@ -495,7 +494,7 @@ initial-wiser-size
 initial-wiser-size
 0
 100
-10.0
+5.0
 1
 1
 NIL
@@ -692,7 +691,7 @@ wiser-spread-chance
 wiser-spread-chance
 0
 100
-10.0
+33.0
 1
 1
 %
@@ -703,7 +702,7 @@ BUTTON
 431
 230
 464
-spread-r-sw-w-together-once
+spread-r-sw-together-once
 spread-r-sw-together
 NIL
 1
@@ -720,7 +719,7 @@ BUTTON
 432
 419
 465
-spread-r-sw-w-together
+spread-r-sw-together
 spread-r-sw-together
 T
 1
@@ -762,7 +761,7 @@ super-wiser-spread-chance
 super-wiser-spread-chance
 0
 100
-3.0
+10.0
 1
 1
 %
@@ -799,11 +798,21 @@ Spread rumors and common wisers together
 1
 
 TEXTBOX
+244
+23
+394
+88
+After reaching a certain size, we will not need use to use \"go\". The functions of go are merged in the spread.
+12
+15.0
+1
+
+TEXTBOX
 20
 401
 355
 427
-Spread rumors, wisers, super wisers together
+Spread rumors, super wisers together
 12
 0.0
 1
