@@ -799,16 +799,6 @@ Spread rumors and common wisers together
 1
 
 TEXTBOX
-244
-23
-394
-88
-After reaching a certain size, we will not need use to use \"go\". The functions of go are merged in the spread.
-12
-15.0
-1
-
-TEXTBOX
 20
 401
 355
