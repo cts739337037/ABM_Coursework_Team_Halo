@@ -121,7 +121,6 @@ to spread-r-sw-together
   ]
   spread-rumor
   spread-super-wiser
-  spread-wiser
   do-checks
   tick
 end
@@ -227,11 +226,11 @@ end
 GRAPHICS-WINDOW
 599
 21
-1211
-634
+1221
+644
 -1
 -1
-5.9802
+6.08
 1
 10
 1
@@ -269,9 +268,9 @@ NIL
 1
 
 BUTTON
-166
+186
 27
-229
+249
 60
 go
 go\n
@@ -286,12 +285,12 @@ NIL
 0
 
 BUTTON
-82
+262
 27
-162
+370
 60
-go-once
-go
+go-thousand
+repeat 998 [ go ]
 NIL
 1
 T
@@ -348,9 +347,9 @@ plot?
 -1000
 
 SWITCH
-271
+275
 553
-377
+381
 586
 layout?
 layout?
@@ -393,9 +392,9 @@ NIL
 0
 
 SLIDER
-8
+11
 158
-203
+206
 191
 initial-outbreak-size
 initial-outbreak-size
@@ -424,9 +423,9 @@ HORIZONTAL
 
 SLIDER
 214
-159
+158
 409
-192
+191
 rumor-spread-chance
 rumor-spread-chance
 0
@@ -467,7 +466,7 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 BUTTON
 13
@@ -484,12 +483,12 @@ NIL
 NIL
 NIL
 NIL
-1
+0
 
 SLIDER
-10
+12
 282
-184
+196
 315
 initial-wiser-size
 initial-wiser-size
@@ -502,10 +501,10 @@ NIL
 HORIZONTAL
 
 BUTTON
-9
-235
-123
-268
+12
+233
+126
+266
 setup-wisers
 setup_wisers
 NIL
@@ -519,10 +518,10 @@ NIL
 1
 
 BUTTON
-284
-234
-405
-268
+287
+232
+408
+266
 spread-wisers
 spread-wisers
 T
@@ -538,7 +537,7 @@ NIL
 MONITOR
 432
 269
-556
+574
 314
 Number of people
 count turtles
@@ -548,9 +547,9 @@ count turtles
 
 MONITOR
 433
-341
-561
-386
+339
+573
+384
 Number of wiser
 count turtles with\n[color = yellow]
 17
@@ -558,10 +557,10 @@ count turtles with\n[color = yellow]
 11
 
 MONITOR
-434
-413
-572
-458
+432
+408
+571
+453
 Number of infected
 count turtles with [color = red]
 17
@@ -588,9 +587,9 @@ PENS
 
 PLOT
 1220
-459
-1515
-635
+263
+1502
+434
 Degree Distribution (log-log)
 log(degree)
 log(# of nodes)
@@ -622,10 +621,10 @@ NIL
 0
 
 BUTTON
-126
-235
-282
-268
+129
+233
+285
+266
 spread-wisers-once
 spread-wisers
 NIL
@@ -639,10 +638,10 @@ NIL
 0
 
 MONITOR
-433
-479
-573
-524
+431
+474
+571
+519
 Number of resistant
 count turtles with [color = gray]
 17
@@ -684,9 +683,9 @@ NIL
 0
 
 SLIDER
-202
+204
 282
-397
+399
 315
 wiser-spread-chance
 wiser-spread-chance
@@ -703,7 +702,7 @@ BUTTON
 431
 230
 464
-spread-r-sw-w-together-once
+spread-r-sw-together-once
 spread-r-sw-together
 NIL
 1
@@ -720,7 +719,7 @@ BUTTON
 432
 419
 465
-spread-r-sw-w-together
+spread-r-sw-together
 spread-r-sw-together
 T
 1
@@ -733,10 +732,10 @@ NIL
 0
 
 PLOT
-1220
-258
-1503
-447
+1221
+445
+1504
+634
 Network Status
 time
 % of nodes
@@ -754,10 +753,10 @@ PENS
 "Resistant" 1.0 0 -7500403 true "" "if not plot? [ stop ]\nplot (count turtles with [resistant? and not wiser?]) / (count turtles) * 100"
 
 SLIDER
-10
-474
-246
-507
+12
+473
+248
+506
 super-wiser-spread-chance
 super-wiser-spread-chance
 0
@@ -837,6 +836,34 @@ Monitors
 12
 105.0
 1
+
+MONITOR
+430
+540
+573
+585
+Number of susceptible
+count turtles with [color = blue]
+17
+1
+11
+
+BUTTON
+92
+27
+172
+60
+go-once
+go
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
