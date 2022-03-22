@@ -4,50 +4,43 @@
 
 
 ;;Set the properties that each turtle has.
-
-;;There are four types of people: the susceptible; the infected; the resistant
-;;and the wiser.
-
-;;The rumor-check-timer is a timer, used in do-checks function.
 turtles-own
 [
   infected?
   resistant?
   wiser?
+  ;;There are four types of people: the susceptible; the infected; the resistant
+  ;;and the wiser.
   rumor-check-timer
+  ;;The rumor-check-timer is a timer, used in do-checks function.
 ]
 
-;;After resetting, set the shape of each node to person.
-;;Create two nodes, one of them has the nobody property
-;;because there is no old node.
-;;Reset the ticks
 to setup
   clear-all
   set-default-shape turtles "person"
+  ;;After resetting, set the shape of each node to person.
   make-node nobody
   make-node turtle 0
+  ;;Create two nodes, one of them has the nobody property
+  ;;because there is no old node.
   reset-ticks
+  ;;Reset the ticks.
 end
 
-;;Make the colour of old links become gray.
-;;Use the make-node and find-partner functions to add
-;;a new node to an old one.
-;;If the switch of "layout" is on, run the function"layout"
-;;Tick + 1.
 to go
   ask links [ set color gray ]
+  ;;Make the colour of old links become gray.
   make-node find-partner
+  ;;Use the make-node and find-partner functions to add
+  ;;a new node to an old one.
   if layout? [ layout ]
+  ;;If the switch of "layout" is on, run the function"layout".
   tick
+  ;;Tick + 1.
 end
 
 ;;Define the make-node function
 ;;whose paremeter is an existing old node.
-;;Create one new node which is a suscepetible person.
-;;Its size is 2.
-;;The if statement is to set the link of each new node to green
-;;in addition to the first node which do not have a link.
-;;Locate the new node near its partner.
 to make-node [old-node]
   create-turtles 1
   [
@@ -55,17 +48,22 @@ to make-node [old-node]
     set infected? false
     set resistant? false
     set wiser? false
+    ;;Create one new node which is a suscepetible person.
     set size 2
+    ;;Its size is 2.
     if old-node != nobody
       [ create-link-with old-node [ set color green ]
+        ;;The if statement is to set the link of each new node to green
+        ;;in addition to the first node which do not have a link.
         move-to old-node
         fd 8
+        ;;Locate the new node near its partner.
       ]
   ]
 end
 
 ;;The more connected a node is, the more likely it is to receive new links.
-;;It is the core of Preferential attachment
+;;It is the core of Preferential attachment.
 to-report find-partner
   report [one-of both-ends] of one-of links
 end
@@ -74,13 +72,14 @@ end
 ;; Layout ;;
 ;;;;;;;;;;;;
 
+
 ;;The result is the laying out of the whole network in a way
 ;;which highlights relationships among the nodes
 ;;and at the same time is crowded less and is visually pleasing.
 to layout
   repeat 3 [
   ;;The number 3 is a parameter. More repetitions slows down the
-  ;;model, but too few gives poor layouts
+  ;;model, but too few gives poor layouts.
     let factor sqrt count turtles
     ;;Because the inputs of springs depends on the number of turtles,
     ;;account the factor first.
@@ -89,138 +88,36 @@ to layout
 
     ;;spring-constant:the force the spring would exert if it's length were changed by 1 unit.
 
-    ;;spring-length:the length which all springs try to achieve either
+    ;;spring-length:the length which all springs try to achieve either.
     ;;by pushing out their nodes or pulling them in.
 
     ;;repulsion-constant:the force that 2 nodes at a distance of 1 unit will exert on each other.
     display
+    ;;Causes the view to be updated immediately.
   ]
+  ;;The model uses a bounded topology,
+  ;;some additional layout code keeps the nodes from staying at the view boundaries.
   let x-offset max [xcor] of turtles + min [xcor] of turtles
   let y-offset max [ycor] of turtles + min [ycor] of turtles
   set x-offset limit-magnitude x-offset 0.1
   set y-offset limit-magnitude y-offset 0.1
+  ;;Only adjust a little each time,  make display smoothly.
   ask turtles [ setxy (xcor - x-offset / 2) (ycor - y-offset / 2) ]
 end
 
 to-report limit-magnitude [number limit]
+  ;;Two parameters: number; limit.
   if number > limit [ report limit ]
   if number < (- limit) [ report (- limit) ]
   report number
-end
-to setup_rumors
-  ask n-of initial-outbreak-size turtles
-    [ become-infected ]
-  reset-ticks
+  ;;To keep x-offset and y-offset 0.
 end
 
-to setup_wisers
-  ask n-of initial-wiser-size turtles
-    [ become-wiser ]
-  reset-ticks
-end
+;;;;;;;;;;;;;;;;;;;;;;;;
+;;Rumor model settings;;
+;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; resize-nodes, change back and forth from size based on degree to a size of 1
-to resize-nodes
-  ifelse all? turtles [size <= 2]
-  [
-    ask turtles [ set size sqrt count link-neighbors ]
-  ]
-  [
-    ask turtles [ set size 2 ]
-  ]
-end
-
-to set-all-susceptible
-  ask turtles [
-    become-susceptible
-  ]
-end
-
-to remove-infected
-    ask turtles with [color = red][
-    become-susceptible
-  ]
-end
-
-to spread-rumors
-  if all? turtles [not infected?]
-    [ stop ]
-  ask turtles
-  [
-     set rumor-check-timer rumor-check-timer + 1
-     if rumor-check-timer >= check-frequency
-       [ set rumor-check-timer 0 ]
-  ]
-  spread-rumor
-  do-checks
-  tick
-end
-
-to spread-rumor
-  ask turtles with [infected?]
-    [ ask link-neighbors with [not resistant? and not wiser?]
-        [ if random-float 100 < rumor-spread-chance
-            [ become-infected ] ] ]
-end
-
-to spread-wisers
-  if all? turtles [not infected?]
-    [ stop ]
-  ask turtles
-  [
-     set rumor-check-timer rumor-check-timer + 1
-     if rumor-check-timer >= check-frequency
-       [ set rumor-check-timer 0 ]
-  ]
-  spread-wiser
-  do-checks
-  tick
-end
-
-to spread-wiser
-  ask turtles with [wiser?]
-    [ ask link-neighbors with [not resistant? and not wiser?]
-        [ if random-float 100 < wiser-spread-chance
-            [ become-resistant ] ] ]
-end
-
-to spread-super-wiser
-  ask turtles with [wiser?]
-    [ ask link-neighbors with [not wiser?]
-        [ if random-float 100 < super-wiser-spread-chance
-            [ become-wiser ] ] ]
-end
-
-to spread-r-w-together
-  if all? turtles [not infected?]
-    [ stop ]
-  ask turtles
-  [
-     set rumor-check-timer rumor-check-timer + 1
-     if rumor-check-timer >= check-frequency
-       [ set rumor-check-timer 0 ]
-  ]
-  spread-rumor
-  spread-wiser
-  do-checks
-  tick
-end
-
-to spread-r-sw-together
-  if all? turtles [not infected?]
-    [ stop ]
-  ask turtles
-  [
-     set rumor-check-timer rumor-check-timer + 1
-     if rumor-check-timer >= check-frequency
-       [ set rumor-check-timer 0 ]
-  ]
-  spread-rumor
-  spread-super-wiser
-  do-checks
-  tick
-end
-
+;;Define four types of people
 to become-infected
   set infected? true
   set resistant? false
@@ -228,6 +125,7 @@ to become-infected
   set color red
 end
 
+;;Wisers are also the resistant. they are stronger.
 to become-wiser
   set infected? false
   set resistant? true
@@ -249,14 +147,191 @@ to become-resistant
   set color gray
 end
 
+;;Set up settings
+to setup_rumors
+  ask n-of initial-outbreak-size turtles
+    [ become-infected ]
+  ;;Make n of random turtles into rumour spreaders.
+  reset-ticks
+  clear-all-plots
+  ;;Reset the ticks and plots to analyse better.
+end
 
+to setup_wisers
+  ask n-of initial-wiser-size turtles with [not infected?]
+    [ become-wiser ]
+  ;;Make n of random turtles which is not infected into rumour spreaders.
+  reset-ticks
+  clear-all-plots
+  ;;Reset the ticks and plots to analyse better.
+end
+
+;;Spread settings
+to spread-rumors
+  if all? turtles [not infected?]
+    [ stop ]
+  ;;Stop when there is no person infected.
+  ask turtles
+  [
+     set rumor-check-timer rumor-check-timer + 1
+     if rumor-check-timer >= check-frequency
+       [ set rumor-check-timer 0 ]
+  ]
+  ;;Timer+1. When the number of timer reach to a certain number, set it zero.
+  ;;To make a repetitive cycle.
+  spread-rumor
+  do-checks
+  ;;Run these functions.
+  tick
+end
+
+to spread-rumor
+  ask turtles with [infected?]
+  ;;Take the turtles which are infected.
+    [ ask link-neighbors with [not resistant? and not wiser? and not infected?]
+    ;;Take all suspectible link-neighbors.
+        [ if random-float 100 < rumor-spread-chance
+            [ become-infected ] ] ]
+        ;;They have a certain chance of transforming,
+        ;;which is determined by rumor-spread-chance.
+end
+
+to spread-wisers
+  if all? turtles [not infected?]
+    [ stop ]
+  ;;Stop when there is no person infected.
+  ask turtles
+  [
+     set rumor-check-timer rumor-check-timer + 1
+     if rumor-check-timer >= check-frequency
+       [ set rumor-check-timer 0 ]
+  ]
+  ;;Timer+1. When the number of timer reach to a certain number, set it zero.
+  ;;To make a repetitive cycle.
+  spread-wiser
+  do-checks
+  ;;Run these functions.
+  tick
+end
+
+to spread-wiser
+  ask turtles with [wiser?]
+  ;;Take the turtles which are wisers.
+    [ ask link-neighbors with [not resistant? and not wiser?]
+    ;;Take all suspectible and infected link-neighbors.
+        [ if random-float 100 < wiser-spread-chance
+            [ become-resistant ] ] ]
+        ;;They have a certain chance of transforming,
+        ;;which is determined by wiser-spread-chance.
+end
+
+to spread-super-wiser
+  ask turtles with [wiser?]
+  ;;Take the turtles which are wisers.
+    [ ask link-neighbors with [not wiser?]
+    ;;Take all suspectible resistant and infected link-neighbors.
+        [ if random-float 100 < super-wiser-spread-chance
+            [ become-wiser ] ] ]
+        ;;They have a certain chance of transforming,
+        ;;which is determined by super-wiser-spread-chance.
+end
+
+;;Spread wiser and rumor together.
+to spread-r-w-together
+  if all? turtles [not infected?]
+    [ stop ]
+  ask turtles
+  [
+     set rumor-check-timer rumor-check-timer + 1
+     if rumor-check-timer >= check-frequency
+       [ set rumor-check-timer 0 ]
+  ]
+  spread-rumor
+  spread-wiser
+  do-checks
+  tick
+end
+
+;;Spread super-wiser and rumor together.
+to spread-r-sw-together
+  if all? turtles [not infected?]
+    [ stop ]
+  ask turtles
+  [
+     set rumor-check-timer rumor-check-timer + 1
+     if rumor-check-timer >= check-frequency
+       [ set rumor-check-timer 0 ]
+  ]
+  spread-rumor
+  spread-super-wiser
+  do-checks
+  tick
+end
+
+;;This function is to determine if some of the susceptible people have the knowledge to immunity rumours
+;;and become resistant from suspectible.
 to do-checks
   ask turtles with [not infected? and not resistant? and not wiser? and rumor-check-timer = 0]
+  ;;Take the suspectible when their timers is zero.
   [
      if random 100 < gain-resistance-chance
       [ become-resistant ]
+     ;;They have a certain chance of transforming, which is determined by gain-resistance-chance.
   ]
 end
+
+;;;;;;;;;;;;;;;;;;;;;;;;;
+;;Some useful functions;;
+;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;; resize-nodes, change back and forth from size based on degree to a size of 2.
+to resize-nodes
+  ifelse all? turtles [size <= 2]
+  [
+    ask turtles [ set size sqrt count link-neighbors ]
+    ;;using SQRT makes the person's area proportional to its degree.
+  ]
+  [
+    ask turtles [ set size 2 ]
+    ;;Return to original condition.
+
+  ]
+end
+
+;;Make every turtle become susceptible.
+to set-all-susceptible
+  ask turtles [
+    become-susceptible
+  ]
+end
+
+;;Make every turtle which is infected become susceptible.
+to remove-infected
+    ask turtles with [color = red][
+    become-susceptible
+  ]
+end
+
+;;Button
+;;Button go-thousand: repeat the function go 998 time to make 1000 nodes in the word
+
+;;Monitors
+;;Number of people: the number of nodes.
+;;Number of wiser: the number of nodes which are yellow.
+;;Number of infected: the number of nodes which are red.
+;;Number of resistant: the number of nodes which are gray.
+;;Number of susceptible: the number of nodes which are blue.
+
+;;Plots
+;;The first:The DEGREE DISTRIBUTION plot shows the number of nodes with each degree value.
+            ;;This is a power law distribution.
+;;The second:The log plot of the first plot
+;;The third: Number of four types of people
+
+;;Switches
+;;layout: whether run the layout function while going
+;;plot: whether update the plots
 @#$#@#$#@
 GRAPHICS-WINDOW
 599
@@ -272,8 +347,8 @@ GRAPHICS-WINDOW
 1
 1
 0
-1
-1
+0
+0
 1
 -50
 50
@@ -377,7 +452,7 @@ SWITCH
 58
 plot?
 plot?
-0
+1
 1
 -1000
 
@@ -388,7 +463,7 @@ SWITCH
 586
 layout?
 layout?
-1
+0
 1
 -1000
 
@@ -435,7 +510,7 @@ initial-outbreak-size
 initial-outbreak-size
 0
 50
-13.0
+32.0
 1
 1
 NIL
@@ -465,7 +540,7 @@ rumor-spread-chance
 rumor-spread-chance
 0
 100
-38.0
+37.0
 1
 1
 %
@@ -480,7 +555,7 @@ gain-resistance-chance
 gain-resistance-chance
 0
 100
-7.0
+31.0
 1
 1
 %
@@ -529,7 +604,7 @@ initial-wiser-size
 initial-wiser-size
 0
 100
-10.0
+20.0
 1
 1
 NIL
@@ -608,10 +683,10 @@ PLOT
 1501
 249
 Degree Distribution
-degree
-# of nodes
+Degree
+Numer of nodes
 1.0
-10.0
+100.0
 0.0
 10.0
 true
@@ -626,8 +701,8 @@ PLOT
 1502
 434
 Degree Distribution (log-log)
-log(degree)
-log(# of nodes)
+Log(degree)
+Log(Number of nodes)
 0.0
 0.3
 0.0
@@ -726,7 +801,7 @@ wiser-spread-chance
 wiser-spread-chance
 0
 100
-10.0
+9.0
 1
 1
 %
@@ -775,7 +850,7 @@ Network Status
 time
 % of nodes
 0.0
-10.0
+52.0
 0.0
 100.0
 true
@@ -795,9 +870,9 @@ SLIDER
 super-wiser-spread-chance
 super-wiser-spread-chance
 0
-100
-3.0
-1
+50
+1.5
+0.5
 1
 %
 HORIZONTAL
