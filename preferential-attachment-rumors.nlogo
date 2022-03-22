@@ -1,3 +1,14 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;Basic Network Settings;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;Set the properties that each turtle has.
+
+;;There are four types of people: the susceptible; the infected; the resistant
+;;and the wiser.
+
+;;The rumor-check-timer is a timer, used in do-checks function.
 turtles-own
 [
   infected?
@@ -6,6 +17,10 @@ turtles-own
   rumor-check-timer
 ]
 
+;;After resetting, set the shape of each node to person.
+;;Create two nodes, one of them has the nobody property
+;;because there is no old node.
+;;Reset the ticks
 to setup
   clear-all
   set-default-shape turtles "person"
@@ -14,7 +29,11 @@ to setup
   reset-ticks
 end
 
-
+;;Make the colour of old links become gray.
+;;Use the make-node and find-partner functions to add
+;;a new node to an old one.
+;;If the switch of "layout" is on, run the function"layout"
+;;Tick + 1.
 to go
   ask links [ set color gray ]
   make-node find-partner
@@ -22,6 +41,72 @@ to go
   tick
 end
 
+;;Define the make-node function
+;;whose paremeter is an existing old node.
+;;Create one new node which is a suscepetible person.
+;;Its size is 2.
+;;The if statement is to set the link of each new node to green
+;;in addition to the first node which do not have a link.
+;;Locate the new node near its partner.
+to make-node [old-node]
+  create-turtles 1
+  [
+    set color blue
+    set infected? false
+    set resistant? false
+    set wiser? false
+    set size 2
+    if old-node != nobody
+      [ create-link-with old-node [ set color green ]
+        move-to old-node
+        fd 8
+      ]
+  ]
+end
+
+;;The more connected a node is, the more likely it is to receive new links.
+;;It is the core of Preferential attachment
+to-report find-partner
+  report [one-of both-ends] of one-of links
+end
+
+;;;;;;;;;;;;
+;; Layout ;;
+;;;;;;;;;;;;
+
+;;The result is the laying out of the whole network in a way
+;;which highlights relationships among the nodes
+;;and at the same time is crowded less and is visually pleasing.
+to layout
+  repeat 3 [
+  ;;The number 3 is a parameter. More repetitions slows down the
+  ;;model, but too few gives poor layouts
+    let factor sqrt count turtles
+    ;;Because the inputs of springs depends on the number of turtles,
+    ;;account the factor first.
+    layout-spring turtles links (1 / factor) (7 / factor) (1 / factor)
+    ;;The three parameters of layout-spring are spring's constant; length and repulsion-constant.
+
+    ;;spring-constant:the force the spring would exert if it's length were changed by 1 unit.
+
+    ;;spring-length:the length which all springs try to achieve either
+    ;;by pushing out their nodes or pulling them in.
+
+    ;;repulsion-constant:the force that 2 nodes at a distance of 1 unit will exert on each other.
+    display
+  ]
+  let x-offset max [xcor] of turtles + min [xcor] of turtles
+  let y-offset max [ycor] of turtles + min [ycor] of turtles
+  set x-offset limit-magnitude x-offset 0.1
+  set y-offset limit-magnitude y-offset 0.1
+  ask turtles [ setxy (xcor - x-offset / 2) (ycor - y-offset / 2) ]
+end
+
+to-report limit-magnitude [number limit]
+  if number > limit [ report limit ]
+  if number < (- limit) [ report (- limit) ]
+  report number
+end
 to setup_rumors
   ask n-of initial-outbreak-size turtles
     [ become-infected ]
@@ -32,6 +117,17 @@ to setup_wisers
   ask n-of initial-wiser-size turtles
     [ become-wiser ]
   reset-ticks
+end
+
+;; resize-nodes, change back and forth from size based on degree to a size of 1
+to resize-nodes
+  ifelse all? turtles [size <= 2]
+  [
+    ask turtles [ set size sqrt count link-neighbors ]
+  ]
+  [
+    ask turtles [ set size 2 ]
+  ]
 end
 
 to set-all-susceptible
@@ -123,67 +219,6 @@ to spread-r-sw-together
   spread-super-wiser
   do-checks
   tick
-end
-
-
-to make-node [old-node]
-  create-turtles 1
-  [
-    set color blue
-    set infected? false
-    set resistant? false
-    set wiser? false
-    set size 2
-    if old-node != nobody
-      [ create-link-with old-node [ set color green ]
-        move-to old-node
-        fd 8
-      ]
-  ]
-end
-
-;; This code is the heart of the "preferential attachment" mechanism, and acts like
-;; a lottery where each node gets a ticket for every connection it already has.
-;; While the basic idea is the same as in the Lottery Example (in the Code Examples
-;; section of the Models Library), things are made simpler here by the fact that we
-;; can just use the links as if they were the "tickets": we first pick a random link,
-;; and than we pick one of the two ends of that link.
-to-report find-partner
-  report [one-of both-ends] of one-of links
-end
-
-;;;;;;;;;;;;;;
-;;; Layout ;;;
-;;;;;;;;;;;;;;
-
-;; resize-nodes, change back and forth from size based on degree to a size of 1
-to resize-nodes
-  ifelse all? turtles [size <= 2]
-  [
-    ask turtles [ set size sqrt count link-neighbors ]
-  ]
-  [
-    ask turtles [ set size 2 ]
-  ]
-end
-
-to layout
-  repeat 3 [
-    let factor sqrt count turtles
-    layout-spring turtles links (1 / factor) (7 / factor) (1 / factor)
-    display
-  ]
-  let x-offset max [xcor] of turtles + min [xcor] of turtles
-  let y-offset max [ycor] of turtles + min [ycor] of turtles
-  set x-offset limit-magnitude x-offset 0.1
-  set y-offset limit-magnitude y-offset 0.1
-  ask turtles [ setxy (xcor - x-offset / 2) (ycor - y-offset / 2) ]
-end
-
-to-report limit-magnitude [number limit]
-  if number > limit [ report limit ]
-  if number < (- limit) [ report (- limit) ]
-  report number
 end
 
 to become-infected
@@ -353,7 +388,7 @@ SWITCH
 586
 layout?
 layout?
-0
+1
 1
 -1000
 
