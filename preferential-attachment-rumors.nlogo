@@ -452,7 +452,7 @@ SWITCH
 58
 plot?
 plot?
-1
+0
 1
 -1000
 
@@ -525,7 +525,7 @@ check-frequency
 check-frequency
 0
 14
-4.0
+14.0
 1
 1
 NIL
@@ -540,7 +540,7 @@ rumor-spread-chance
 rumor-spread-chance
 0
 100
-37.0
+7.0
 1
 1
 %
@@ -555,7 +555,7 @@ gain-resistance-chance
 gain-resistance-chance
 0
 100
-31.0
+11.0
 1
 1
 %
