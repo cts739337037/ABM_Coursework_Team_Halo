@@ -510,7 +510,7 @@ initial-outbreak-size
 initial-outbreak-size
 0
 50
-32.0
+10.0
 1
 1
 NIL
@@ -540,7 +540,7 @@ rumor-spread-chance
 rumor-spread-chance
 0
 100
-7.0
+10.0
 1
 1
 %
@@ -555,7 +555,7 @@ gain-resistance-chance
 gain-resistance-chance
 0
 100
-11.0
+0.0
 1
 1
 %
@@ -604,7 +604,7 @@ initial-wiser-size
 initial-wiser-size
 0
 100
-20.0
+0.0
 1
 1
 NIL
@@ -801,7 +801,7 @@ wiser-spread-chance
 wiser-spread-chance
 0
 100
-9.0
+0.0
 1
 1
 %
