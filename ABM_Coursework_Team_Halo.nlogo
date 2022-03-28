@@ -543,7 +543,7 @@ check-frequency
 check-frequency
 0
 14
-14.0
+13.0
 1
 1
 NIL
@@ -1562,6 +1562,82 @@ setup_clarifiers</setup>
     <enumeratedValueSet variable="check-frequency">
       <value value="14"/>
     </enumeratedValueSet>
+    <enumeratedValueSet variable="rumor-spread-chance">
+      <value value="10"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="gain-resistance-chance(1 2 21)(C_R)" repetitions="5" runMetricsEveryStep="true">
+    <setup>setup
+repeat 998 [ go ] 
+setup_rumors
+setup_clarifiers</setup>
+    <go>spread-r-c-together</go>
+    <timeLimit steps="600"/>
+    <exitCondition>not any? turtles with [color = blue]</exitCondition>
+    <metric>infected_n</metric>
+    <metric>clarifier_n</metric>
+    <metric>resistant_n</metric>
+    <metric>susceptible_n</metric>
+    <enumeratedValueSet variable="initial-outbreak-size">
+      <value value="15"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="initial-clarifier-size">
+      <value value="5"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="gain-resistance-chance" first="1" step="2" last="21"/>
+    <enumeratedValueSet variable="layout?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="super-clarifier-spread-chance">
+      <value value="1.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="clarifier-spread-chance">
+      <value value="9"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="plot?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="check-frequency">
+      <value value="14"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="rumor-spread-chance">
+      <value value="10"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="check-frequency(1 2 15)(C_R)" repetitions="5" runMetricsEveryStep="true">
+    <setup>setup
+repeat 998 [ go ] 
+setup_rumors
+setup_clarifiers</setup>
+    <go>spread-r-c-together</go>
+    <timeLimit steps="600"/>
+    <exitCondition>not any? turtles with [color = blue]</exitCondition>
+    <metric>infected_n</metric>
+    <metric>clarifier_n</metric>
+    <metric>resistant_n</metric>
+    <metric>susceptible_n</metric>
+    <enumeratedValueSet variable="initial-outbreak-size">
+      <value value="15"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="initial-clarifier-size">
+      <value value="5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="gain-resistance-chance">
+      <value value="5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="layout?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="super-clarifier-spread-chance">
+      <value value="1.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="clarifier-spread-chance">
+      <value value="9"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="plot?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="check-frequency" first="1" step="2" last="15"/>
     <enumeratedValueSet variable="rumor-spread-chance">
       <value value="10"/>
     </enumeratedValueSet>
