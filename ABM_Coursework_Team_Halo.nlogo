@@ -679,7 +679,7 @@ MONITOR
 648
 388
 Number of clarifier
-count turtles with\n[color = yellow]
+clarifier_n
 17
 1
 11
@@ -690,7 +690,7 @@ MONITOR
 646
 457
 Number of infected
-count turtles with [color = red]
+infected_n
 17
 1
 11
@@ -771,7 +771,7 @@ MONITOR
 646
 523
 Number of resistant
-count turtles with [color = gray]
+resistant_n
 17
 1
 11
@@ -971,7 +971,7 @@ MONITOR
 648
 589
 Number of susceptible
-count turtles with [color = blue]
+susceptible_n
 17
 1
 11
