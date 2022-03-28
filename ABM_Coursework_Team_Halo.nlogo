@@ -8,9 +8,9 @@ turtles-own
 [
   infected?
   resistant?
-  wiser?
+  clarifier?
   ;;There are four types of people: the susceptible; the infected; the resistant
-  ;;and the wiser.
+  ;;and the clarifier.
   rumor-check-timer
   ;;The rumor-check-timer is a timer, used in do-checks function.
 ]
@@ -47,7 +47,7 @@ to make-node [old-node]
     set color blue
     set infected? false
     set resistant? false
-    set wiser? false
+    set clarifier? false
     ;;Create one new node which is a suscepetible person.
     set size 2
     ;;Its size is 2.
@@ -121,29 +121,29 @@ end
 to become-infected
   set infected? true
   set resistant? false
-  set wiser? false
+  set clarifier? false
   set color red
 end
 
-;;Wisers are also the resistant. they are stronger.
-to become-wiser
+;;clarifiers are also the resistant. they are stronger.
+to become-clarifier
   set infected? false
   set resistant? true
-  set wiser? true
+  set clarifier? true
   set color yellow
 end
 
 to become-susceptible
   set infected? false
   set resistant? false
-  set wiser? false
+  set clarifier? false
   set color blue
 end
 
 to become-resistant
   set infected? false
   set resistant? true
-  set wiser? false
+  set clarifier? false
   set color gray
 end
 
@@ -157,9 +157,9 @@ to setup_rumors
   ;;Reset the ticks and plots to analyse better.
 end
 
-to setup_wisers
-  ask n-of initial-wiser-size turtles with [not infected?]
-    [ become-wiser ]
+to setup_clarifiers
+  ask n-of initial-clarifier-size turtles with [not infected?]
+    [ become-clarifier ]
   ;;Make n of random turtles which is not infected into rumour spreaders.
   reset-ticks
   clear-all-plots
@@ -188,7 +188,7 @@ end
 to spread-rumor
   ask turtles with [infected?]
   ;;Take the turtles which are infected.
-    [ ask link-neighbors with [not resistant? and not wiser? and not infected?]
+    [ ask link-neighbors with [not resistant? and not clarifier? and not infected?]
     ;;Take all suspectible link-neighbors.
         [ if random-float 100 < rumor-spread-chance
             [ become-infected ] ] ]
@@ -196,7 +196,7 @@ to spread-rumor
         ;;which is determined by rumor-spread-chance.
 end
 
-to spread-wisers
+to spread-clarifiers
   if all? turtles [not infected?]
     [ stop ]
   ;;Stop when there is no person infected.
@@ -208,36 +208,36 @@ to spread-wisers
   ]
   ;;Timer+1. When the number of timer reach to a certain number, set it zero.
   ;;To make a repetitive cycle.
-  spread-wiser
+  spread-clarifier
   do-checks
   ;;Run these functions.
   tick
 end
 
-to spread-wiser
-  ask turtles with [wiser?]
-  ;;Take the turtles which are wisers.
-    [ ask link-neighbors with [not resistant? and not wiser?]
+to spread-clarifier
+  ask turtles with [clarifier?]
+  ;;Take the turtles which are clarifiers.
+    [ ask link-neighbors with [not resistant? and not clarifier?]
     ;;Take all suspectible and infected link-neighbors.
-        [ if random-float 100 < wiser-spread-chance
+        [ if random-float 100 < clarifier-spread-chance
             [ become-resistant ] ] ]
         ;;They have a certain chance of transforming,
-        ;;which is determined by wiser-spread-chance.
+        ;;which is determined by clarifier-spread-chance.
 end
 
-to spread-super-wiser
-  ask turtles with [wiser?]
-  ;;Take the turtles which are wisers.
-    [ ask link-neighbors with [not wiser?]
+to spread-super-clarifier
+  ask turtles with [clarifier?]
+  ;;Take the turtles which are clarifiers.
+    [ ask link-neighbors with [not clarifier?]
     ;;Take all suspectible resistant and infected link-neighbors.
-        [ if random-float 100 < super-wiser-spread-chance
-            [ become-wiser ] ] ]
+        [ if random-float 100 < super-clarifier-spread-chance
+            [ become-clarifier ] ] ]
         ;;They have a certain chance of transforming,
-        ;;which is determined by super-wiser-spread-chance.
+        ;;which is determined by super-clarifier-spread-chance.
 end
 
-;;Spread wiser and rumor together.
-to spread-r-w-together
+;;Spread clarifier and rumor together.
+to spread-r-c-together
   if all? turtles [not infected?]
     [ stop ]
   ask turtles
@@ -247,13 +247,13 @@ to spread-r-w-together
        [ set rumor-check-timer 0 ]
   ]
   spread-rumor
-  spread-wiser
+  spread-clarifier
   do-checks
   tick
 end
 
-;;Spread super-wiser and rumor together.
-to spread-r-sw-together
+;;Spread super-clarifier and rumor together.
+to spread-r-sc-together
   if all? turtles [not infected?]
     [ stop ]
   ask turtles
@@ -263,7 +263,7 @@ to spread-r-sw-together
        [ set rumor-check-timer 0 ]
   ]
   spread-rumor
-  spread-super-wiser
+  spread-super-clarifier
   do-checks
   tick
 end
@@ -271,7 +271,7 @@ end
 ;;This function is to determine if some of the susceptible people have the knowledge to immunity rumours
 ;;and become resistant from suspectible.
 to do-checks
-  ask turtles with [not infected? and not resistant? and not wiser? and rumor-check-timer = 0]
+  ask turtles with [not infected? and not resistant? and not clarifier? and rumor-check-timer = 0]
   ;;Take the suspectible when their timers is zero.
   [
      if random 100 < gain-resistance-chance
@@ -318,7 +318,7 @@ end
 
 ;;Monitors
 ;;Number of people: the number of nodes.
-;;Number of wiser: the number of nodes which are yellow.
+;;Number of clarifier: the number of nodes which are yellow.
 ;;Number of infected: the number of nodes which are red.
 ;;Number of resistant: the number of nodes which are gray.
 ;;Number of susceptible: the number of nodes which are blue.
@@ -334,10 +334,10 @@ end
 ;;plot: whether update the plots
 @#$#@#$#@
 GRAPHICS-WINDOW
-599
-21
-1221
-644
+750
+29
+1372
+652
 -1
 -1
 6.08
@@ -446,10 +446,10 @@ NIL
 0
 
 SWITCH
-1220
-25
-1323
-58
+1371
+33
+1474
+66
 plot?
 plot?
 0
@@ -517,10 +517,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-426
-128
-598
-161
+577
+136
+749
+169
 check-frequency
 check-frequency
 0
@@ -547,15 +547,15 @@ rumor-spread-chance
 HORIZONTAL
 
 SLIDER
-425
-180
-598
-213
+576
+188
+749
+221
 gain-resistance-chance
 gain-resistance-chance
 0
 100
-0.0
+5.0
 1
 1
 %
@@ -598,13 +598,13 @@ NIL
 SLIDER
 12
 282
-196
+214
 315
-initial-wiser-size
-initial-wiser-size
+initial-clarifier-size
+initial-clarifier-size
 0
 100
-0.0
+7.0
 1
 1
 NIL
@@ -613,10 +613,10 @@ HORIZONTAL
 BUTTON
 12
 233
-126
+154
 266
-setup-wisers
-setup_wisers
+setup-clarifiers
+setup_clarifiers
 NIL
 1
 T
@@ -628,12 +628,12 @@ NIL
 1
 
 BUTTON
-287
-232
-408
-266
-spread-wisers
-spread-wisers
+349
+233
+498
+267
+spread-clarifiers
+spread-clarifiers
 T
 1
 T
@@ -645,10 +645,10 @@ NIL
 0
 
 MONITOR
-432
-269
-574
-314
+583
+277
+725
+322
 Number of people
 count turtles
 17
@@ -656,21 +656,21 @@ count turtles
 11
 
 MONITOR
-433
-339
-573
-384
-Number of wiser
+584
+347
+728
+392
+Number of clarifier
 count turtles with\n[color = yellow]
 17
 1
 11
 
 MONITOR
-432
-408
-571
-453
+583
+416
+722
+461
 Number of infected
 count turtles with [color = red]
 17
@@ -678,10 +678,10 @@ count turtles with [color = red]
 11
 
 PLOT
-1220
-64
-1501
-249
+1371
+72
+1652
+257
 Degree Distribution
 Degree
 Numer of nodes
@@ -696,10 +696,10 @@ PENS
 "default" 1.0 1 -16777216 true "" "if not plot? [ stop ]\nlet max-degree max [count link-neighbors] of turtles\nplot-pen-reset  ;; erase what we plotted before\nset-plot-x-range 1 (max-degree + 1)  ;; + 1 to make room for the width of the last bar\nhistogram [count link-neighbors] of turtles"
 
 PLOT
-1220
-263
-1502
-434
+1371
+271
+1653
+442
 Degree Distribution (log-log)
 Log(degree)
 Log(Number of nodes)
@@ -731,12 +731,12 @@ NIL
 0
 
 BUTTON
-129
+159
 233
-285
+343
 266
-spread-wisers-once
-spread-wisers
+spread-clarifiers-once
+spread-clarifiers
 NIL
 1
 T
@@ -748,10 +748,10 @@ NIL
 0
 
 MONITOR
-431
-474
-571
-519
+582
+482
+722
+527
 Number of resistant
 count turtles with [color = gray]
 17
@@ -763,8 +763,8 @@ BUTTON
 352
 207
 385
-spread-r-w-together-once
-spread-r-w-together
+spread-r-c-together-once
+spread-r-c-together
 NIL
 1
 T
@@ -780,8 +780,8 @@ BUTTON
 352
 379
 385
-spread-r-w-together
-spread-r-w-together
+spread-r-c-together
+spread-r-c-together
 T
 1
 T
@@ -793,15 +793,15 @@ NIL
 0
 
 SLIDER
-204
-282
-399
-315
-wiser-spread-chance
-wiser-spread-chance
+219
+283
+442
+316
+clarifier-spread-chance
+clarifier-spread-chance
 0
 100
-0.0
+9.0
 1
 1
 %
@@ -812,8 +812,8 @@ BUTTON
 431
 230
 464
-spread-r-sw-together-once
-spread-r-sw-together
+spread-r-sc-together-once
+spread-r-sc-together
 NIL
 1
 T
@@ -825,12 +825,12 @@ NIL
 0
 
 BUTTON
-235
-432
-419
-465
-spread-r-sw-together
-spread-r-sw-together
+237
+431
+421
+464
+spread-r-sc-together
+spread-r-sc-together
 T
 1
 T
@@ -842,10 +842,10 @@ NIL
 0
 
 PLOT
-1221
-445
-1504
-634
+1372
+453
+1655
+642
 Network Status
 time
 % of nodes
@@ -857,18 +857,18 @@ true
 true
 "" ""
 PENS
-"Susceptible" 1.0 0 -13345367 true "" "if not plot? [ stop ]\nplot (count turtles with [not infected? and not resistant? and not wiser?]) / (count turtles) * 100"
+"Susceptible" 1.0 0 -13345367 true "" "if not plot? [ stop ]\nplot (count turtles with [not infected? and not resistant? and not clarifier?]) / (count turtles) * 100"
 "Infected" 1.0 0 -2674135 true "" "if not plot? [ stop ]\nplot (count turtles with [infected?]) / (count turtles) * 100"
-"Wiser" 1.0 0 -1184463 true "" "if not plot? [ stop ]\nplot (count turtles with [wiser?]) / (count turtles) * 100"
-"Resistant" 1.0 0 -7500403 true "" "if not plot? [ stop ]\nplot (count turtles with [resistant? and not wiser?]) / (count turtles) * 100"
+"Clarifier" 1.0 0 -1184463 true "" "if not plot? [ stop ]\nplot (count turtles with [clarifier?]) / (count turtles) * 100"
+"Resistant" 1.0 0 -7500403 true "" "if not plot? [ stop ]\nplot (count turtles with [resistant? and not clarifier?]) / (count turtles) * 100"
 
 SLIDER
 12
 473
-248
+283
 506
-super-wiser-spread-chance
-super-wiser-spread-chance
+super-clarifier-spread-chance
+super-clarifier-spread-chance
 0
 50
 1.5
@@ -918,10 +918,10 @@ Spread rumors, wisers, super wisers together
 1
 
 TEXTBOX
-432
-21
-582
-99
+583
+29
+733
+107
 This is the slider of how often to determine if some of the susceptible people have the knowledge to immunity rumours
 12
 105.0
@@ -938,20 +938,20 @@ Some functions
 1
 
 TEXTBOX
-436
-238
-586
-256
+587
+246
+737
+264
 Monitors
 12
 105.0
 1
 
 MONITOR
-430
-540
-573
-585
+581
+548
+724
+593
 Number of susceptible
 count turtles with [color = blue]
 17
