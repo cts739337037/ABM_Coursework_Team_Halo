@@ -528,7 +528,7 @@ initial-outbreak-size
 initial-outbreak-size
 0
 50
-1.0
+15.0
 1
 1
 NIL
@@ -622,7 +622,7 @@ initial-clarifier-size
 initial-clarifier-size
 0
 100
-7.0
+5.0
 1
 1
 NIL
@@ -1340,20 +1340,22 @@ NetLogo 6.2.1
 @#$#@#$#@
 @#$#@#$#@
 <experiments>
-  <experiment name="Change initial-outbreak-size" repetitions="2" runMetricsEveryStep="true">
+  <experiment name="rumor-spread-chance(1 3 31)(R)" repetitions="5" runMetricsEveryStep="true">
     <setup>setup
 repeat 998 [ go ] 
 setup_rumors</setup>
-    <go>repeat 1000 [spread-rumors]</go>
-    <timeLimit steps="1"/>
+    <go>spread-rumors</go>
+    <timeLimit steps="600"/>
     <exitCondition>not any? turtles with [color = blue]</exitCondition>
     <metric>infected_n</metric>
     <metric>clarifier_n</metric>
     <metric>resistant_n</metric>
     <metric>susceptible_n</metric>
-    <steppedValueSet variable="initial-outbreak-size" first="1" step="3" last="30"/>
+    <enumeratedValueSet variable="initial-outbreak-size">
+      <value value="15"/>
+    </enumeratedValueSet>
     <enumeratedValueSet variable="initial-clarifier-size">
-      <value value="7"/>
+      <value value="5"/>
     </enumeratedValueSet>
     <enumeratedValueSet variable="gain-resistance-chance">
       <value value="5"/>
@@ -1364,6 +1366,193 @@ setup_rumors</setup>
     <enumeratedValueSet variable="super-clarifier-spread-chance">
       <value value="1.5"/>
     </enumeratedValueSet>
+    <enumeratedValueSet variable="clarifier-spread-chance">
+      <value value="9"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="plot?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="check-frequency">
+      <value value="14"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="rumor-spread-chance" first="1" step="3" last="31"/>
+  </experiment>
+  <experiment name="gain-resistance-chance(1 2 21)(R)" repetitions="5" runMetricsEveryStep="true">
+    <setup>setup
+repeat 998 [ go ] 
+setup_rumors</setup>
+    <go>spread-rumors</go>
+    <timeLimit steps="600"/>
+    <exitCondition>not any? turtles with [color = blue]</exitCondition>
+    <metric>infected_n</metric>
+    <metric>clarifier_n</metric>
+    <metric>resistant_n</metric>
+    <metric>susceptible_n</metric>
+    <enumeratedValueSet variable="initial-outbreak-size">
+      <value value="15"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="initial-clarifier-size">
+      <value value="5"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="gain-resistance-chance" first="1" step="2" last="21"/>
+    <enumeratedValueSet variable="layout?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="super-clarifier-spread-chance">
+      <value value="1.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="clarifier-spread-chance">
+      <value value="9"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="plot?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="check-frequency">
+      <value value="14"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="rumor-spread-chance">
+      <value value="10"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="rumor-spread-chance(1 3 31)(C_R)" repetitions="5" runMetricsEveryStep="true">
+    <setup>setup
+repeat 998 [ go ] 
+setup_rumors
+setup_clarifiers</setup>
+    <go>spread-r-c-together</go>
+    <timeLimit steps="600"/>
+    <exitCondition>not any? turtles with [color = blue]</exitCondition>
+    <metric>infected_n</metric>
+    <metric>clarifier_n</metric>
+    <metric>resistant_n</metric>
+    <metric>susceptible_n</metric>
+    <enumeratedValueSet variable="initial-outbreak-size">
+      <value value="15"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="initial-clarifier-size">
+      <value value="5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="gain-resistance-chance">
+      <value value="5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="layout?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="super-clarifier-spread-chance">
+      <value value="1.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="clarifier-spread-chance">
+      <value value="9"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="plot?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="check-frequency">
+      <value value="14"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="rumor-spread-chance" first="1" step="3" last="31"/>
+  </experiment>
+  <experiment name="clarifier-spread-chance(1 2 21)(C_R)" repetitions="5" runMetricsEveryStep="true">
+    <setup>setup
+repeat 998 [ go ] 
+setup_rumors
+setup_clarifiers</setup>
+    <go>spread-r-c-together</go>
+    <timeLimit steps="600"/>
+    <exitCondition>not any? turtles with [color = blue]</exitCondition>
+    <metric>infected_n</metric>
+    <metric>clarifier_n</metric>
+    <metric>resistant_n</metric>
+    <metric>susceptible_n</metric>
+    <enumeratedValueSet variable="initial-outbreak-size">
+      <value value="15"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="initial-clarifier-size">
+      <value value="5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="gain-resistance-chance">
+      <value value="5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="layout?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="super-clarifier-spread-chance">
+      <value value="1.5"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="clarifier-spread-chance" first="1" step="2" last="21"/>
+    <enumeratedValueSet variable="plot?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="check-frequency">
+      <value value="14"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="rumor-spread-chance">
+      <value value="10"/>
+    </enumeratedValueSet>
+  </experiment>
+  <experiment name="rumor-spread-chance(1 3 31)(SC_R)" repetitions="5" runMetricsEveryStep="true">
+    <setup>setup
+repeat 998 [ go ] 
+setup_rumors
+setup_clarifiers</setup>
+    <go>spread-r-sc-together</go>
+    <timeLimit steps="600"/>
+    <exitCondition>not any? turtles with [color = blue]</exitCondition>
+    <metric>infected_n</metric>
+    <metric>clarifier_n</metric>
+    <metric>resistant_n</metric>
+    <metric>susceptible_n</metric>
+    <enumeratedValueSet variable="initial-outbreak-size">
+      <value value="15"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="initial-clarifier-size">
+      <value value="5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="gain-resistance-chance">
+      <value value="5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="layout?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="super-clarifier-spread-chance">
+      <value value="1.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="clarifier-spread-chance">
+      <value value="9"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="plot?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="check-frequency">
+      <value value="14"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="rumor-spread-chance" first="1" step="3" last="31"/>
+  </experiment>
+  <experiment name="super-clarifier-spread-chance(0.1 0.2 2.1)(SC_R)" repetitions="5" runMetricsEveryStep="true">
+    <setup>setup
+repeat 998 [ go ] 
+setup_rumors
+setup_clarifiers</setup>
+    <go>spread-r-sc-together</go>
+    <timeLimit steps="600"/>
+    <exitCondition>not any? turtles with [color = blue]</exitCondition>
+    <metric>infected_n</metric>
+    <metric>clarifier_n</metric>
+    <metric>resistant_n</metric>
+    <metric>susceptible_n</metric>
+    <enumeratedValueSet variable="initial-outbreak-size">
+      <value value="15"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="initial-clarifier-size">
+      <value value="5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="gain-resistance-chance">
+      <value value="5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="layout?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <steppedValueSet variable="super-clarifier-spread-chance" first="0.1" step="0.2" last="2.1"/>
     <enumeratedValueSet variable="clarifier-spread-chance">
       <value value="9"/>
     </enumeratedValueSet>
