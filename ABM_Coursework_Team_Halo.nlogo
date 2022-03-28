@@ -510,7 +510,7 @@ initial-outbreak-size
 initial-outbreak-size
 0
 50
-10.0
+1.0
 1
 1
 NIL
@@ -1321,6 +1321,45 @@ NetLogo 6.2.1
 @#$#@#$#@
 @#$#@#$#@
 @#$#@#$#@
+<experiments>
+  <experiment name="Change initial-outbreak-size" repetitions="5" runMetricsEveryStep="true">
+    <setup>setup
+repeat 998 [ go ] 
+setup_rumors</setup>
+    <go>spread-rumors</go>
+    <timeLimit steps="10000"/>
+    <exitCondition>not any? turtles with [color = blue]</exitCondition>
+    <metric>count turtles with [color = blue]</metric>
+    <metric>count turtles with [color = yellow]</metric>
+    <metric>count turtles with [color = red]</metric>
+    <metric>count turtles with [color = gray]</metric>
+    <steppedValueSet variable="initial-outbreak-size" first="1" step="3" last="30"/>
+    <enumeratedValueSet variable="initial-clarifier-size">
+      <value value="7"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="gain-resistance-chance">
+      <value value="5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="layout?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="super-clarifier-spread-chance">
+      <value value="1.5"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="clarifier-spread-chance">
+      <value value="9"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="plot?">
+      <value value="true"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="check-frequency">
+      <value value="14"/>
+    </enumeratedValueSet>
+    <enumeratedValueSet variable="rumor-spread-chance">
+      <value value="10"/>
+    </enumeratedValueSet>
+  </experiment>
+</experiments>
 @#$#@#$#@
 @#$#@#$#@
 default
