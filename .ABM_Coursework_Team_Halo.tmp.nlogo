@@ -313,6 +313,24 @@ to remove-infected
   ]
 end
 
+;;Used for Behaviourspace
+to-report infected_n
+  report count turtles with [color = red]
+end
+
+to-report clarifier_n
+  report count turtles with [color = yellow]
+end
+
+to-report resistant_n
+  report count turtles with [color = gray]
+end
+
+to-report susceptible_n
+  report count turtles with [color = blue]
+end
+
+
 ;;Button
 ;;Button go-thousand: repeat the function go 998 time to make 1000 nodes in the word
 
@@ -1327,12 +1345,12 @@ NetLogo 6.2.1
 repeat 998 [ go ] 
 setup_rumors</setup>
     <go>repeat 1000 [spread-rumors]</go>
-    <timeLimit steps="10000"/>
+    <timeLimit steps="1"/>
     <exitCondition>not any? turtles with [color = blue]</exitCondition>
-    <metric>count turtles with [color = blue]</metric>
-    <metric>count turtles with [color = yellow]</metric>
-    <metric>count turtles with [color = red]</metric>
-    <metric>count turtles with [color = gray]</metric>
+    <metric>infected_n</metric>
+    <metric>clarifier_n</metric>
+    <metric>resistant_n</metric>
+    <metric>susceptible_n</metric>
     <steppedValueSet variable="initial-outbreak-size" first="1" step="3" last="30"/>
     <enumeratedValueSet variable="initial-clarifier-size">
       <value value="7"/>
