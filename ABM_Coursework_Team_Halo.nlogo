@@ -334,10 +334,10 @@ end
 ;;plot: whether update the plots
 @#$#@#$#@
 GRAPHICS-WINDOW
-750
-29
-1372
-652
+674
+25
+1296
+648
 -1
 -1
 6.08
@@ -446,10 +446,10 @@ NIL
 0
 
 SWITCH
-1371
-33
-1474
-66
+1295
+29
+1398
+62
 plot?
 plot?
 0
@@ -517,10 +517,10 @@ NIL
 HORIZONTAL
 
 SLIDER
-577
-136
-749
-169
+501
+132
+673
+165
 check-frequency
 check-frequency
 0
@@ -547,10 +547,10 @@ rumor-spread-chance
 HORIZONTAL
 
 SLIDER
-576
-188
-749
-221
+500
+184
+673
+217
 gain-resistance-chance
 gain-resistance-chance
 0
@@ -645,10 +645,10 @@ NIL
 0
 
 MONITOR
-583
-277
-725
-322
+507
+273
+649
+318
 Number of people
 count turtles
 17
@@ -656,10 +656,10 @@ count turtles
 11
 
 MONITOR
-584
-347
-728
-392
+508
+343
+652
+388
 Number of clarifier
 count turtles with\n[color = yellow]
 17
@@ -667,10 +667,10 @@ count turtles with\n[color = yellow]
 11
 
 MONITOR
-583
-416
-722
-461
+507
+412
+646
+457
 Number of infected
 count turtles with [color = red]
 17
@@ -678,10 +678,10 @@ count turtles with [color = red]
 11
 
 PLOT
-1371
-72
-1652
-257
+1295
+68
+1576
+253
 Degree Distribution
 Degree
 Numer of nodes
@@ -696,10 +696,10 @@ PENS
 "default" 1.0 1 -16777216 true "" "if not plot? [ stop ]\nlet max-degree max [count link-neighbors] of turtles\nplot-pen-reset  ;; erase what we plotted before\nset-plot-x-range 1 (max-degree + 1)  ;; + 1 to make room for the width of the last bar\nhistogram [count link-neighbors] of turtles"
 
 PLOT
-1371
-271
-1653
-442
+1295
+267
+1577
+438
 Degree Distribution (log-log)
 Log(degree)
 Log(Number of nodes)
@@ -748,10 +748,10 @@ NIL
 0
 
 MONITOR
-582
-482
-722
-527
+506
+478
+646
+523
 Number of resistant
 count turtles with [color = gray]
 17
@@ -842,10 +842,10 @@ NIL
 0
 
 PLOT
-1372
-453
-1655
-642
+1296
+449
+1579
+638
 Network Status
 time
 % of nodes
@@ -918,10 +918,10 @@ Spread rumors, wisers, super wisers together
 1
 
 TEXTBOX
-583
-29
-733
-107
+507
+25
+657
+103
 This is the slider of how often to determine if some of the susceptible people have the knowledge to immunity rumours
 12
 105.0
@@ -938,20 +938,20 @@ Some functions
 1
 
 TEXTBOX
-587
-246
-737
-264
+511
+242
+661
+260
 Monitors
 12
 105.0
 1
 
 MONITOR
-581
-548
-724
-593
+505
+544
+648
+589
 Number of susceptible
 count turtles with [color = blue]
 17
